@@ -22,21 +22,18 @@ const Navbar: React.FC = () => {
       </motion.div>
 
       {/* Centered Link */}
-      {/* <motion.div
+      <motion.div
         className="absolute left-1/2 transform -translate-x-1/2"
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
         transition={{ duration: 0.5, delay: 0.4 }}
       >
-        <Link href="/schedule-transactions"
+        <Link href="/wallet"
           className="text-white font-semibold px-4 py-2 rounded-lg bg-gradient-to-r from-red-500 via-yellow-500 to-blue-500 hover:from-blue-500 hover:to-purple-500 shadow-lg">
-          My Wallet
+          Dashboard
         </Link>
-        <Link href="/schedule-transactions"
-          className="text-white font-semibold px-4 py-2 rounded-lg bg-gradient-to-r from-red-500 via-yellow-500 to-blue-500 hover:from-blue-500 hover:to-purple-500 shadow-lg">
-          Create New Wallet
-        </Link>
-      </motion.div> */}
+        
+      </motion.div>
 
       {/* Right Side */}
       <div className="flex items-center space-x-4">

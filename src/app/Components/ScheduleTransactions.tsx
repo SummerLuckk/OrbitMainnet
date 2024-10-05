@@ -7,17 +7,26 @@ import OrbitWalletABI from "@/app/Contract/OrbitABI.json";
 import OrbitWalletFactoryABI from "@/app/Contract/OrbitFactoryABI.json";
 import { initializeClient } from '../utils/publicClient';
 import { parseUnits } from 'ethers';
+import contract from "../utils/ContractAddress.json";
+import { keccak256, toUtf8Bytes } from 'ethers';
 
-const factoryAddress = '0x...'; // Replace with your deployed factory address
+const factoryAddress = contract.OrbitFactoryContractAddress;
 
-const ScheduleTransaction = () => {
+interface ScheduleTransactionProps {
+  contractAddress: Address;  // or Address if you're using the viem type
+}
+
+const ScheduleTransaction: React.FC<ScheduleTransactionProps> = ({ contractAddress }) => {
   const [userWallets, setUserWallets] = useState([]);
   const [selectedWallet, setSelectedWallet] = useState('');
   const [newTransaction, setNewTransaction] = useState({
     to: '',
     amount: '',
+    tokenAddress:'',
     date: new Date().toISOString().split('T')[0],
   });
+  const [isERC20, setIsERC20] = useState(false);
+
 
   const chainId = getChainId(config);
   const client = initializeClient(chainId);
@@ -48,17 +57,28 @@ const ScheduleTransaction = () => {
   const scheduleTransaction = async () => {
     if (!selectedWallet || !newTransaction.to || !newTransaction.amount) return;
     try {
+
+      const timestamp = new Date().getTime().toString();
+
+// Convert address and timestamp to bytes and concatenate them
+const combined = toUtf8Bytes(`${address}-${timestamp}`);
+
+// Hash the combined data to create a unique nonce
+      const nonce = keccak256(combined);
       await writeContractAsync({
         address: selectedWallet as Address,
+        // address: "0x89Cf93F50a71cf39A850b02DEd1AAa04CFE5221B",
         abi: OrbitWalletABI,
         functionName: "submitTransaction",
         args: [
           newTransaction.to,
           parseUnits(newTransaction.amount, 18),
-          new Date(newTransaction.date).getTime()
+          "0x0000000000000000000000000000000000000000",
+          nonce,
+          new Date(newTransaction.date).getTime(),
         ],
       });
-      setNewTransaction({ to: '', amount: '', date: new Date().toISOString().split('T')[0] });
+      setNewTransaction({ to: '', amount: '', tokenAddress: '', date: new Date().toISOString().split('T')[0] });
     } catch (error) {
       console.error('Error scheduling transaction:', error);
     }
@@ -67,16 +87,7 @@ const ScheduleTransaction = () => {
   return (
     <div>
       <h2 className="text-2xl font-bold mb-4">Schedule Transaction</h2>
-      <select
-        value={selectedWallet}
-        onChange={(e) => setSelectedWallet(e.target.value)}
-        className="w-full p-2 border rounded mb-4"
-      >
-        <option value="">Select a wallet</option>
-        {userWallets.map((wallet, index) => (
-          <option key={index} value={wallet}>{wallet}</option>
-        ))}
-      </select>
+     
       <input
         type="text"
         value={newTransaction.to}
@@ -95,6 +106,13 @@ const ScheduleTransaction = () => {
         type="date"
         value={newTransaction.date}
         onChange={(e) => setNewTransaction({...newTransaction, date: e.target.value})}
+        className="w-full p-2 border rounded mb-2"
+      />
+       <input
+        type="text"
+        value={newTransaction.amount}
+        onChange={(e) => setNewTransaction({...newTransaction, tokenAddress: e.target.value})}
+        placeholder="Amount (BTT)"
         className="w-full p-2 border rounded mb-2"
       />
       <button

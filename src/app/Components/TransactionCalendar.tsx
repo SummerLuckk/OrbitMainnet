@@ -7,12 +7,14 @@ import OrbitWalletABI from "@/app/Contract/OrbitABI.json";
 import OrbitWalletFactoryABI from "@/app/Contract/OrbitFactoryABI.json";
 import { initializeClient } from '../utils/publicClient';
 import { Calendar, momentLocalizer } from 'react-big-calendar';
-const moment = require('moment')
+const moment = require('moment');
 import 'react-big-calendar/lib/css/react-big-calendar.css';
 import { formatUnits } from 'ethers';
+import contract from "../utils/ContractAddress.json";
 
 const localizer = momentLocalizer(moment);
-const factoryAddress = '0x...'; // Replace with your deployed factory address
+
+const factoryAddress = contract.OrbitFactoryContractAddress;
 
 interface Transaction {
   txIndex: number;
@@ -24,10 +26,14 @@ interface Transaction {
   date: number;
 }
 
-const TransactionCalendar = () => {
-  const [userWallets, setUserWallets] = useState([]);
-  const [selectedWallet, setSelectedWallet] = useState('');
-  const [transactions, setTransactions] =  useState<Transaction[]>([]);
+interface TransactionCalendarProps {
+  contractAddress: Address;  // or Address if you're using the viem type
+}
+
+const TransactionCalendar: React.FC<TransactionCalendarProps> = ({ contractAddress }) => {
+  const [transactions, setTransactions] = useState<Transaction[]>([]);
+  const [selectedTransaction, setSelectedTransaction] = useState<Transaction | null>(null);
+  const [showPopup, setShowPopup] = useState(false);
 
   const chainId = getChainId(config);
   const client = initializeClient(chainId);
@@ -39,28 +45,13 @@ const TransactionCalendar = () => {
     client: client,
   });
 
-  useEffect(() => {
-    if (address) {
-      getUserWallets();
-    }
-  }, [address]);
-
-  const getUserWallets = async () => {
-    try {
-      const wallets = await factoryContract.read.getUserWallets([address]);
-      setUserWallets(wallets);
-    } catch (error) {
-      console.error('Error fetching user wallets:', error);
-    }
-  };
-
-  const getWalletTransactions = async (walletAddress :Address) => {
+  const getWalletTransactions = async (walletAddress: Address) => {
     const walletContract = getContract({
       address: walletAddress as `0x${string}`,
       abi: OrbitWalletABI,
       client: client,
     });
-    
+
     try {
       const transactionsData = await walletContract.read.getAllTransactions();
       setTransactions(transactionsData);
@@ -70,36 +61,82 @@ const TransactionCalendar = () => {
   };
 
   useEffect(() => {
-    if (selectedWallet) {
-      getWalletTransactions(selectedWallet as Address);
+    if (contractAddress) {
+      getWalletTransactions(contractAddress as Address);
     }
-  }, [selectedWallet]);
+  }, [contractAddress]);
+
+  const handleEventClick = (event: any) => {
+    const transaction = transactions.find(tx => formatUnits(tx.amount, 18) === event.title.split(' ')[0]);
+    setSelectedTransaction(transaction || null);
+    setShowPopup(true);
+  };
+
+  const getEventStyle = (tx: Transaction) => {
+    if (tx.executed) return { backgroundColor: 'green', color: 'black' }; // Completed
+    if (tx.date < Date.now() && !tx.executed) return { backgroundColor: 'red', color: 'black' }; // Missed
+    return { backgroundColor: 'yellow', color: 'black' }; // Upcoming
+  };
+
+  const calendarEvents = transactions.map(tx => ({
+    title: `${formatUnits(tx.amount, 18)} BTT to ${tx.receiver}`,
+    start: new Date(Number(tx.date)),
+    end: new Date(Number(tx.date)),
+    allDay: true,
+    style: getEventStyle(tx), // Adding the style here
+  }));
 
   return (
     <div>
       <h2 className="text-2xl font-bold mb-4">Transaction Calendar</h2>
-      <select
-        value={selectedWallet}
-        onChange={(e) => setSelectedWallet(e.target.value)}
-        className="w-full p-2 border rounded mb-4"
-      >
-        <option value="">Select a wallet</option>
-        {userWallets.map((wallet, index) => (
-          <option key={index} value={wallet}>{wallet}</option>
-        ))}
-      </select>
+
+      <div className="mb-4">
+        <div className="flex space-x-4">
+          <div className="flex items-center">
+            <span className="w-3 h-3 bg-green-500 mr-2"></span> <span>Completed</span>
+          </div>
+          <div className="flex items-center">
+            <span className="w-3 h-3 bg-red-500 mr-2"></span> <span>Missed</span>
+          </div>
+          <div className="flex items-center">
+            <span className="w-3 h-3 bg-yellow-500 mr-2"></span> <span>Upcoming</span>
+          </div>
+        </div>
+      </div>
+
       <Calendar
         localizer={localizer}
-        events={transactions.map(tx => ({
-          title: `${formatUnits(tx.amount, 18)} BTT to ${tx.receiver}`,
-          start: new Date(tx.date),
-          end: new Date(tx.date),
-          allDay: true,
-        }))}
+        events={calendarEvents} // Using the processed events
         startAccessor="start"
         endAccessor="end"
         style={{ height: 500 }}
+        onSelectEvent={handleEventClick}
+        eventPropGetter={(event) => ({
+          style: {
+            backgroundColor: event.style.backgroundColor,
+            color: event.style.color,
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+          },
+        })}
       />
+
+      {showPopup && selectedTransaction && (
+        <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50">
+          <div className="bg-white rounded p-6 w-96">
+            <h3 className="text-lg font-bold">Transaction Details</h3>
+            <p><strong>Receiver:</strong> {selectedTransaction.receiver}</p>
+            <p><strong>Amount:</strong> {formatUnits(selectedTransaction.amount, 18)} BTT</p>
+            <p><strong>Status:</strong> {selectedTransaction.executed ? "Executed" : "Pending"}</p>
+            <p><strong>Nonce:</strong> {selectedTransaction.nonce}</p>
+            <p><strong>Date:</strong> {new Date(Number(selectedTransaction.date)).toLocaleString()}</p>
+            <button onClick={() => setShowPopup(false)} className="mt-4 px-4 py-2 bg-blue-500 text-white rounded">Sign</button>
+            <button onClick={() => setShowPopup(false)} className="mt-4 px-4 py-2 bg-blue-500 text-white rounded">Execute</button>
+            <button onClick={() => setShowPopup(false)} className="mt-4 px-4 py-2 bg-blue-500 text-white rounded">Close</button>
+          </div>
+        </div>
+      )}
     </div>
   );
 };
