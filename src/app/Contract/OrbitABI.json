@@ -361,9 +361,9 @@
 						"type": "bool"
 					},
 					{
-						"internalType": "bytes",
+						"internalType": "bytes32",
 						"name": "nonce",
-						"type": "bytes"
+						"type": "bytes32"
 					},
 					{
 						"internalType": "uint256",
@@ -443,9 +443,9 @@
 						"type": "bool"
 					},
 					{
-						"internalType": "bytes",
+						"internalType": "bytes32",
 						"name": "nonce",
-						"type": "bytes"
+						"type": "bytes32"
 					},
 					{
 						"internalType": "uint256",
@@ -567,9 +567,9 @@
 				"type": "address"
 			},
 			{
-				"internalType": "bytes",
+				"internalType": "bytes32",
 				"name": "_nonce",
-				"type": "bytes"
+				"type": "bytes32"
 			},
 			{
 				"internalType": "uint256",
@@ -637,9 +637,9 @@
 				"type": "bool"
 			},
 			{
-				"internalType": "bytes",
+				"internalType": "bytes32",
 				"name": "nonce",
-				"type": "bytes"
+				"type": "bytes32"
 			},
 			{
 				"internalType": "uint256",
