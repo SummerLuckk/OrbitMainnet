@@ -43,8 +43,9 @@ const CreateWallet = () => {
   };
 
   const createWallet = async () => {
-    const ownersArray = newOwners.split(',').map(addr => addr.trim());
-    ownersArray.push(address); // Include the current user
+    const ownersArray = newOwners.split(',').map(addr => addr.trim().toLowerCase());
+    console.log(address.toLowerCase());
+    ownersArray.push(address.toLowerCase()); // Include the current user
     try {
       await writeContractAsync({
         address: factoryAddress as Address,
@@ -66,7 +67,8 @@ const CreateWallet = () => {
   };
 
   return (
-    <div className="container mx-auto p-6">
+    <div className="container mx-auto p-6" style={{ color: 'black' }}>
+
       <h2 className="text-2xl font-bold mb-4">Create New Wallet</h2>
       <div className="mb-4">
         <input
@@ -97,7 +99,7 @@ const CreateWallet = () => {
           <div
             key={index}
             onClick={() => handleWalletClick(wallet)}
-            className="p-4 border rounded shadow-lg hover:shadow-xl transition duration-200 cursor-pointer"
+            className="p-4 border rounded shadow-lg hover:shadow-xl transition duration-200 cursor-pointer" style={{color :"white"}}
           >
             <h4 className="font-semibold text-lg">Wallet Address</h4>
             <p className="text-gray-700 break-all">{wallet}</p>

@@ -31,14 +31,14 @@ export async function getTokenDetails(TokenAddress: string, userAddress: string)
     const name: string = await contract.read.name();
     const symbol: string = await contract.read.symbol();
     const decimals: number = await contract.read.decimals(); // Assuming decimals is returned as a number
-    const balance: bigint = await contract.read.balanceOf(userAddress as `0x${string}`); // Ensure address is of the right format
+    const balance: bigint = await contract.read.balanceOf([userAddress as `0x${string}`]); // Ensure address is of the right format
 
-    console.log(balance);
+    // console.log(balance);
     return {
       name,
       symbol,
       decimals: decimals.toString(),
-      balance,
+      balance :balance,
     };
   } catch (error: any) {
     console.log("loading token error", error.message);

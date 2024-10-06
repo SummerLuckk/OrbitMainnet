@@ -12,7 +12,6 @@
     "isolatedModules": true,
     "jsx": "preserve",
     "incremental": true,
-    "types":  ["@types/node", "@types/moment"], 
     "plugins": [
       {
         "name": "next"
@@ -22,6 +21,6 @@
       "@/*": ["./src/*"]
     }
   },
-  "include": ["next-env.d.ts", "**/*.ts", "**/*.tsx", ".next/types/**/*.ts", "src/app/user-wallet/page.jsx"],, "src/a, "src/app/Components/TransactionCalendar.jsx"pp/Components/TransactionCalendar.jsx"
+  "include": ["next-env.d.ts", "**/*.ts", "**/*.tsx", ".next/types/**/*.ts", "src/app/user-wallet/paje.jsx"],
   "exclude": ["node_modules"]
 }

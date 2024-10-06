@@ -282,7 +282,7 @@
 		],
 		"name": "executeScheduledTransaction",
 		"outputs": [],
-		"stateMutability": "nonpayable",
+		"stateMutability": "payable",
 		"type": "function"
 	},
 	{
@@ -326,7 +326,7 @@
 				"type": "bool"
 			}
 		],
-		"stateMutability": "nonpayable",
+		"stateMutability": "payable",
 		"type": "function"
 	},
 	{
@@ -573,7 +573,7 @@
 			},
 			{
 				"internalType": "uint256",
-				"name": "_scheduledData",
+				"name": "_scheduledDate",
 				"type": "uint256"
 			}
 		],

@@ -11,6 +11,7 @@ import "@openzeppelin/contracts/utils/cryptography/ECDSA.sol";
 import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 
 contract OrbitWallet is IERC165, EIP712, ReentrancyGuard {
+    using ECDSA for bytes32;
     event Deposit(address indexed sender, uint256 amount, uint256 balance);
     event SubmitTransaction(
         address indexed owner,
@@ -298,18 +299,16 @@ contract OrbitWallet is IERC165, EIP712, ReentrancyGuard {
                 transaction.amount
             );
             require(success, "ERC20 transfer failed");
-            transaction.executed = true;
         }
+        transaction.executed = true;
 
         emit ExecuteTransaction(msg.sender, _txIndex);
     }
 
     function verifySignatures(
-        bytes32 _structHash,
+        bytes32 hash,
         bytes[] memory _signatures
     ) internal view {
-        bytes32 hash = _hashTypedDataV4(_structHash);
-
         address[] memory signers = new address[](_signatures.length);
         for (uint256 i = 0; i < _signatures.length; i++) {
             signers[i] = ECDSA.recover(hash, _signatures[i]);
