@@ -117,12 +117,89 @@ const TransactionCalendar: React.FC<TransactionCalendarProps> = ({ contractAddre
   }));
 
   const signTransaction = async (transaction: Transaction) => {
-    // ...sign transaction logic
+
+    console.log(transaction)
+    try {
+      const client = createWalletClient({
+        chain: {
+          id: 1029,
+          rpcUrls: {
+            public: "https://pre-rpc.bittorrentchain.io/",
+          },
+        },
+        transport: custom(window.ethereum),
+      });
+
+      const signature = await client.signTypedData({
+        account: address as Address,
+        domain: {
+          name: "OrbitWallet",
+          version: "1",
+          chainId: "1029",
+          verifyingContract: contractAddress,
+        },
+        types: {
+          EIP712Domain: [
+            { name: "name", type: "string" },
+            { name: "version", type: "string" },
+            { name: "chainId", type: "uint256" },
+            { name: "verifyingContract", type: "address" },
+          ],
+          signTransaction: [
+            { name: "receiver", type: "address" },
+            { name: "amount", type: "uint256" },
+            { name: "tokenAddress", type: "address" },
+            { name: "nonce", type: "bytes32" },
+            { name: "date", type: "uint256" },
+          ],
+        },
+        primaryType: "signTransaction",
+        message: {
+          receiver: transaction.receiver,
+          amount: transaction.amount,
+          tokenAddress: transaction.tokenAddress,
+          nonce: transaction.nonce,
+          date: transaction.date.toString(),
+        },
+      });
+
+      console.log(signature);
+
+      // Store the signature
+      await fetch('/api/manage-signature', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          walletAddress: contractAddress,
+          txIndex: transaction.txIndex.toString(),
+          signature,
+          signerAddress: address,
+        }),
+      });
+
+      // Refresh signatures
+      console.log("done")
+      await fetchSignatures(transaction.txIndex);
+
+    } catch (err) {
+      console.error("Error signing transaction:", err);
+    }
   };
 
   const executeTransaction = async (transaction: Transaction) => {
-    // ...execute transaction logic
-  };
+    await writeContractAsync({
+      address: contractAddress as Address,
+      abi: OrbitWalletABI,
+      functionName: "executeScheduledTransaction",
+      args: [
+        transaction.txIndex,
+        signatures
+      ],
+      value: transaction.amount
+    });
+  }
 
   return (
     <div className="p-4">
@@ -180,7 +257,7 @@ const TransactionCalendar: React.FC<TransactionCalendarProps> = ({ contractAddre
                     onClick={() => signTransaction(selectedTransaction)} 
                     variant="primary"
                     className="mt-2"
-                    disabled={signatures.length >= threshold}
+                    disabled={false}
                   >
                     Sign
                   </Button>
