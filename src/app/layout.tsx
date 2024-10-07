@@ -38,7 +38,7 @@ export default function RootLayout({ children }: RootLayoutProps) {
     chains: [bittorrentchainTestnet],
     ssr: true,
   });
-  
+
   const queryClient = new QueryClient();
 
   return (
@@ -50,7 +50,7 @@ export default function RootLayout({ children }: RootLayoutProps) {
         <WagmiProvider config={config}>
           <QueryClientProvider client={queryClient}>
             <RainbowKitProvider>
-              <Navbar />
+              {/* <Navbar /> */}
               {children}
             </RainbowKitProvider>
           </QueryClientProvider>
