@@ -1,6 +1,6 @@
 "use client"
 
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import { ChevronLeft, ChevronRight, Copy, Grid, Home, Layers, PlusCircle, Settings, Share2 } from 'lucide-react'
 import { Address } from 'viem'
 import Navbar from '../../Navbar'
@@ -9,17 +9,51 @@ import Dashboard from './Dashboard'
 import NewTransaction from './NewTransaction'
 import WalletSettings from './WalletSettings'
 import Link from 'next/link'
+import { useParams } from 'next/navigation'
+import { truncateAddress } from '@/app/utils/truncateAddress'
 
 type MenuItem = 'Dashboard' | 'New Transaction' | 'Settings'
 
 const menuItems: MenuItem[] = ['Dashboard', 'New Transaction', 'Settings']
+type SignerWithName = {
+    name: string;
+    address: string;
+};
 
-interface MainComponentProps {
-    contractAddress: Address;
-}
-export default function MainComponent({ contractAddress }: MainComponentProps) {
+type Wallet = {
+    _id: string;
+    walletAddress: string;
+    name: string;
+    signerAddresses: string[]; // Array of signer addresses
+    signerWithName: SignerWithName[]; // Array of objects with name and address
+    createdBy: string;
+    createdAt: string; // Could also be Date, but you're currently receiving it as a string
+    requiredSignatures: string; // Consider changing to number if the value will always be numeric
+};
+
+export default function MainComponent() {
     const [activeMenuItem, setActiveMenuItem] = useState<MenuItem>('Dashboard')
+    const [walletDetails, setWalletDetails] = useState<Wallet | null>()
+    const params = useParams();
+    console.log("params", params)
+    const walletAddress = params.address;
+    useEffect(() => {
+        const fetchWallets = async () => {
 
+            try {
+                const response = await fetch(`/api/wallet/get-single-wallet-details?walletAddress=${walletAddress}`);
+                const data = await response.json();
+
+                if (response.ok) {
+                    console.log(data)
+                    setWalletDetails(data.wallet.length > 0 ? data.wallet[0] : null);
+                }
+            } catch (err) {
+                console.log('An error occurred while fetching wallets');
+            }
+        };
+        if (walletAddress) { fetchWallets(); }
+    }, [walletAddress]);
     const renderContent = () => {
         switch (activeMenuItem) {
         case 'Dashboard':
@@ -64,8 +98,8 @@ export default function MainComponent({ contractAddress }: MainComponentProps) {
                                     className="mr-3 rounded-full"
                                 />
                                 <div>
-                                    <p className="text-sm font-semibold">Just For Fun</p>
-                                    <p className="text-xs text-gray-400">sep:0x3781...3206</p>
+                                    <p className="text-sm font-semibold">{walletDetails ? walletDetails?.name : "Just For Fun"}</p>
+                                    <p className="text-xs text-gray-400">{walletAddress ? truncateAddress(walletAddress.toString()) : ""}</p>
                                 </div>
                                 <div className="ml-4 flex justify-start gap-4">
                                     <button className="rounded-lg bg-black text-accent p-2">

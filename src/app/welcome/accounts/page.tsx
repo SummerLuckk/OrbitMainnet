@@ -69,6 +69,8 @@ function Accounts() {
                                             <div className="absolute top-0 -right-2 bg-accent text-black text-xs font-bold rounded-full w-5 h-5 flex items-center justify-center">
                                                 {wallet.requiredSignatures}/{wallet.signerAddresses.length}
                                             </div>
+
+
                                         </div>
                                         <div className="pl-4 ">
                                             <p className="font-medium">{wallet.name}</p>
@@ -85,7 +87,22 @@ function Accounts() {
                                     </div>
                                 </div>
                                 <div className="mt-6 flex items-center text-md text-gray-400">
-                                    <span className="text-white mr-2">{wallet.requiredSignatures}</span> threshold
+                                    <span className="text-gray-400 mr-2">Threshold -</span>
+                                    <span className="text-white mr-2">{wallet.requiredSignatures} <span className="text-gray-500">out of {wallet.signerAddresses.length} signer(s)</span></span>
+                                </div>
+
+                                <div className="mt-6 flex items-center text-md text-gray-400">
+                                    {wallet.createdAt ? <><span className="text-gray-400 mr-4"> Created at -</span><span className="text-white mr-2">
+                                        {new Date(wallet.createdAt).toLocaleDateString('en-US', {
+                                            weekday: 'short',
+                                            year: 'numeric',
+                                            month: 'short',
+                                            day: 'numeric',
+                                            hour: '2-digit',
+                                            minute: '2-digit',
+                                            hour12: true,
+                                        })}
+                                    </span> </> : null}
                                 </div>
                             </Link>)
                         ) : (
