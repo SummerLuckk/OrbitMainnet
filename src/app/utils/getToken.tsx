@@ -10,7 +10,7 @@ interface TokenDetails {
   balance: bigint; // Assuming balance is a BigInt
 }
 
-const bittorrentchainTestnet = {
+export const bittorrentchainTestnet = {
   id: 1029,
   name: "BitTorrent Chain Donau",
   nativeCurrency: {
@@ -40,10 +40,10 @@ export async function getTokenDetails(TokenAddress: string, userAddress: string)
       abi: erc20Abi.abi,
       client: publicClient,
     });
-    const name: string = await contract.read.name();
-    const symbol: string = await contract.read.symbol();
-    const decimals: number = await contract.read.decimals(); // Assuming decimals is returned as a number
-    const balance: bigint = await contract.read.balanceOf([userAddress as `0x${string}`]); // Ensure address is of the right format
+    const name: any = await contract.read.name();
+    const symbol: any = await contract.read.symbol();
+    const decimals: any = await contract.read.decimals(); // Assuming decimals is returned as a number
+    const balance: any = await contract.read.balanceOf([userAddress as `0x${string}`]); // Ensure address is of the right format
 
     // console.log(balance);
     return {
