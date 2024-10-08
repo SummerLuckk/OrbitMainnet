@@ -1,7 +1,6 @@
 'use client'
 import React, { useEffect, useState } from 'react'
 import { ChevronDown, Info, ArrowLeft, Orbit, Trash2 } from 'lucide-react'
-import Navbar from '@/app/Components/Navbar'
 import Blockies from "react-blockies";
 import { useAccount, useWaitForTransactionReceipt, useWriteContract } from 'wagmi';
 import { Address, getContract } from 'viem';
@@ -363,7 +362,6 @@ export default function CreateAccount() {
 
     return (
         <>
-            <Navbar />
             <div className="min-h-screen bg-[#121212] text-white p-8 font-dmsans">
                 <div className="max-w-6xl mx-auto">
                     <h1 className="text-3xl font-bold mb-8">Create new Orbit Account</h1>

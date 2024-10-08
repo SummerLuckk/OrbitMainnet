@@ -3,7 +3,6 @@ import Link from "next/link";
 import React from "react";
 import { CircleCheck, Orbit } from 'lucide-react'
 import { ConnectButton } from "@rainbow-me/rainbowkit";
-import Navbar from "@/app/Components/Navbar";
 import dynamic from "next/dynamic";
 
 const WelcomeComponent = dynamic(() => import("@/app/Components/pages/welcome/Welcome"), { ssr: false })
@@ -11,7 +10,6 @@ const WelcomeComponent = dynamic(() => import("@/app/Components/pages/welcome/We
 function Home() {
   return (
     <div className="min-h-screen bg-black text-white font-dmsans">
-      <Navbar />
 
       <main className="container mx-auto px-4 mt-16 flex gap-4 min-h-[75vh] ">
         <div className="w-1/2 bg-accent p-12 rounded-lg text-black">

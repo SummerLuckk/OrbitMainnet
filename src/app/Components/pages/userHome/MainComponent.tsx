@@ -2,8 +2,6 @@
 
 import { useEffect, useState } from 'react'
 import { ChevronLeft, ChevronRight, Copy, Grid, Home, Layers, PlusCircle, Settings, Share2 } from 'lucide-react'
-import { Address } from 'viem'
-import Navbar from '../../Navbar'
 import Blockies from "react-blockies";
 import Dashboard from './Dashboard'
 import NewTransaction from './NewTransaction'
@@ -69,7 +67,6 @@ export default function MainComponent() {
 
     return (
         <>
-            <Navbar />
             <div className="flex min-h-screen bg-dark-black text-white font-dmsans">
                 {/* Sidebar */}
                 <div className="w-64 bg-dark-gray ">

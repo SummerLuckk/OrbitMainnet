@@ -3,7 +3,6 @@
 import React, { useEffect, useState } from "react";
 import Blockies from "react-blockies";
 import { MoreVertical } from "lucide-react";
-import Navbar from "@/app/Components/Navbar";
 import Link from "next/link";
 import { useAccount } from "wagmi";
 import { MultisigWallet } from "@/app/types/types";
@@ -40,7 +39,6 @@ function Accounts() {
     const [hasAccounts, setHasAccounts] = useState(true)
     return (
         <>
-            <Navbar />
             <div className="min-h-screen bg-dark-black text-white p-8 font-dmsans">
                 <div className="max-w-5xl mx-auto">
                     <div className="flex justify-between items-center mb-8">

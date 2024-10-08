@@ -5,6 +5,7 @@ import "./globals.css";
 import "@rainbow-me/rainbowkit/styles.css";
 import { Metadata } from 'next';
 import dynamic from 'next/dynamic';
+import Navbar from './Components/Navbar';
 
 
 const dm_sans = DM_Sans({
@@ -32,7 +33,10 @@ export default function RootLayout({ children }: RootLayoutProps) {
         <title></title>
       </head>
       <body>
-        <Providers>{children}</Providers>
+        <Providers>
+          <Navbar />
+          {children}
+        </Providers>
       </body>
     </html>
   );
