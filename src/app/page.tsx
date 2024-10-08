@@ -10,25 +10,28 @@ const WelcomeComponent = dynamic(() => import("@/app/Components/pages/welcome/We
 
 function Home() {
   return (
-    <div className="min-h-screen bg-black text-white">
+    <div className="min-h-screen bg-black text-white font-dmsans">
       <Navbar />
 
       <main className="container mx-auto px-4 mt-16 flex gap-4 min-h-[75vh] ">
-        <div className="w-1/2 bg-accent p-12 rounded-lg text-black ">
-          <h1 className="text-5xl font-bold mb-6">Unlock a new way of ownership</h1>
+        <div className="w-1/2 bg-accent p-12 rounded-lg text-black">
+          <h1 className="text-5xl font-bold mb-6">Revolutionize Your Ownership Experience</h1>
           <p className="mb-8 text-lg">
-            The most trusted decentralized custody protocol and collective asset management platform.
+            Introducing the ultimate multisig wallet, powered by innovative calendar features for effortless budget management.
           </p>
           <ul className="space-y-4">
             <li className="flex items-center">
               <CircleCheck className="w-6 h-6 mr-2" />
-              Stealth security with multiple signers
+              Enhanced security with multi-signer protection
             </li>
             <li className="flex items-center">
               <CircleCheck className="w-6 h-6 mr-2" />
-              Make it yours with modules and guards
+              Tailor your experience with customizable modules and safeguards
             </li>
-
+            <li className="flex items-center">
+              <CircleCheck className="w-6 h-6 mr-2" />
+              Streamlined budgeting with intuitive calendar integration
+            </li>
           </ul>
         </div>
 

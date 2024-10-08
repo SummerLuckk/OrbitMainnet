@@ -20,7 +20,7 @@ import NewTransaction from './NewTransaction'
 import OrbitWalletABI from "@/app/Contract/OrbitABI.json";
 import { useAccount, useWriteContract } from 'wagmi'
 import { useParams } from 'next/navigation'
-import { Address, Client, createWalletClient, formatUnits, getContract, http } from 'viem'
+import { Address, Client, createWalletClient, custom, formatUnits, getContract, http } from 'viem'
 import { initializeClient } from '@/app/utils/publicClient'
 import { config } from '@/app/utils/config'
 import { bittorrentchainTestnet } from '@/app/utils/getToken'
@@ -33,6 +33,7 @@ type CalendarEvent = {
     end: Date;
     allDay: boolean;
     amount: number;
+    txIndex: number;
     currency: string; // Adjust this if you have currency data
 };
 
@@ -63,6 +64,7 @@ interface Transaction {
     executed: boolean;
     nonce: string;
     date: number;
+    amt: bigint;
 }
 
 export default function CalendarView() {
@@ -71,7 +73,7 @@ export default function CalendarView() {
     const [view, setView] = useState<View>('month');
     const { address } = useAccount()
     const [date, setDate] = useState(new Date());
-    const [signatures, setSignatures] = useState()
+    const [signatures, setSignatures] = useState([])
     // const [events, setEvents] = useState<CalendarEvent[]>([
     //     {
     //         id: '1',
@@ -229,6 +231,12 @@ export default function CalendarView() {
     //     []
     // )
 
+    useEffect(() => {
+        if (selectedEvent) {
+            fetchSignatures(selectedEvent.txIndex as number)
+        }
+    }, [selectedEvent])
+
     const { components, defaultView } = useMemo(() => ({
         components: {
             toolbar: CustomToolbar,
@@ -240,14 +248,16 @@ export default function CalendarView() {
 
     const calendarEvents = transactions.map((tx: Transaction) => {
         return {
+            txIndex: tx.txIndex,
             title: `${tx.receiver}`,
+            receiver: tx.receiver,
+            date: tx.date,
             start: new Date(Number(tx.date)), // Ensure `tx.date` is properly converted
             end: new Date(Number(tx.date)),
             allDay: true,
-            // signers: tx.requiredSignatures,
-            // requiredSignatures: tx.requiredSignatures.length,
-            // currentSignatures: Object.keys(tx.signatures).length,
-            // receiver: tx.walletAddress,
+            nonce: `${tx.nonce}`,
+            tokenAddress: tx.tokenAddress,
+            amt: tx.amount,
             amount: `${formatUnits(tx.amount, 18)} `, // Adjust this if you have amount data
             currency: 'BTTC', // Adjust this if you have currency data
         };
@@ -257,6 +267,7 @@ export default function CalendarView() {
         try {
             const response = await fetch(`/api/manage-signature?walletAddress=${walletAddress}&txIndex=${txIndex}`)
             const data = await response.json();
+            console.log("signatures", data)
             setSignatures(data.signatures.map((s: any) => s.signature));
         } catch (error) {
             console.error('Error fetching signatures:', error);
@@ -267,59 +278,65 @@ export default function CalendarView() {
         // ...sign transaction logic
         console.log(transaction)
         try {
-            const client = createWalletClient({
-                chain: bittorrentchainTestnet,
-                transport: http("https://pre-rpc.bittorrentchain.io/"),
-            });
-            const signature = await client?.signTypedData({
-                account: address as Address,
-                domain: {
-                    name: "OrbitWallet",
-                    version: "1",
-                    chainId: BigInt(1029),
-                    verifyingContract: walletAddress as Address,
-                },
-                types: {
-                    EIP712Domain: [
-                        { name: "name", type: "string" },
-                        { name: "version", type: "string" },
-                        { name: "chainId", type: "uint256" },
-                        { name: "verifyingContract", type: "address" },
-                    ],
-                    signTransaction: [
-                        { name: "receiver", type: "address" },
-                        { name: "amount", type: "uint256" },
-                        { name: "tokenAddress", type: "address" },
-                        { name: "nonce", type: "bytes32" },
-                        { name: "date", type: "uint256" },
-                    ],
-                },
-                primaryType: "signTransaction",
-                message: {
-                    receiver: transaction.receiver as Address,
-                    amount: transaction.amount,
-                    tokenAddress: transaction.tokenAddress as `0x${string}`,
-                    nonce: transaction.nonce as `0x${string}`,
-                    date: BigInt(transaction.date.toString()),
-                },
-            });
-            console.log(signature);
-            // Store the signature
-            await fetch('/api/manage-signature', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify({
-                    walletAddress: walletAddress,
-                    txIndex: transaction.txIndex.toString(),
-                    signature,
-                    signerAddress: address,
-                }),
-            });
-            // Refresh signatures
-            console.log("done")
-            await fetchSignatures(transaction.txIndex);
+            // const client = createWalletClient({
+            //     chain: bittorrentchainTestnet,
+            //     transport: http("https://pre-rpc.bittorrentchain.io/"),
+            // });
+            if (typeof window !== undefined && window.ethereum) {
+                const client = createWalletClient({
+                    chain: bittorrentchainTestnet,
+                    transport: custom(window.ethereum),
+                });
+                const signature = await client?.signTypedData({
+                    account: address as Address,
+                    domain: {
+                        name: "OrbitWallet",
+                        version: "1",
+                        chainId: BigInt(1029),
+                        verifyingContract: walletAddress as Address,
+                    },
+                    types: {
+                        EIP712Domain: [
+                            { name: "name", type: "string" },
+                            { name: "version", type: "string" },
+                            { name: "chainId", type: "uint256" },
+                            { name: "verifyingContract", type: "address" },
+                        ],
+                        signTransaction: [
+                            { name: "receiver", type: "address" },
+                            { name: "amount", type: "uint256" },
+                            { name: "tokenAddress", type: "address" },
+                            { name: "nonce", type: "bytes32" },
+                            { name: "date", type: "uint256" },
+                        ],
+                    },
+                    primaryType: "signTransaction",
+                    message: {
+                        receiver: transaction.receiver as Address,
+                        amount: transaction.amt,
+                        tokenAddress: transaction.tokenAddress as `0x${string}`,
+                        nonce: transaction.nonce as `0x${string}`,
+                        date: BigInt(transaction.date),
+                    },
+                });
+                console.log(signature);
+                // Store the signature
+                await fetch('/api/manage-signature', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        walletAddress: walletAddress,
+                        txIndex: transaction.txIndex.toString(),
+                        signature,
+                        signerAddress: address,
+                    }),
+                });
+                // Refresh signatures
+                console.log("done")
+                await fetchSignatures(transaction.txIndex);
+            }
         } catch (err) {
             console.error("Error signing transaction:", err);
         }
@@ -327,7 +344,7 @@ export default function CalendarView() {
 
     const executeTransaction = async (transaction: Transaction) => {
         // ...execute transaction logic
-
+        console.log(signatures)
         await writeContractAsync({
             address: walletAddress as Address,
             abi: OrbitWalletABI,
@@ -336,9 +353,11 @@ export default function CalendarView() {
                 transaction.txIndex,
                 signatures
             ],
-            value: transaction.amount
+            value: transaction.amt
         });
     }
+
+
 
     return (
         <div className="h-screen py-4 bg-dark-black text-white">
@@ -538,6 +557,7 @@ export default function CalendarView() {
                             <span className="font-semibold">Amount:</span>
                             <span className="ml-2 text-gray-300">{selectedEvent?.amount} {selectedEvent?.currency}</span>
                         </div>
+                        <p><strong>Signatures:</strong> {signatures.length} / {threshold as number}</p>
                         {/* <p className="font-semibold">
                             Signatures: {selectedEvent?.currentSignatures} / {selectedEvent?.requiredSignatures}
                         </p> */}
@@ -550,10 +570,13 @@ export default function CalendarView() {
                         </div> */}
                     </div>
                     <DialogFooter>
-                        <Button className="bg-transparent text-accent border border-accent hover:bg-accent hover:text-black disabled:bg-gray-600 disabled:text-gray-400">
+                        <Button className="bg-transparent text-accent border border-accent hover:bg-accent hover:text-black disabled:bg-gray-600 disabled:text-gray-400"
+                            onClick={() => signTransaction(selectedEvent as any)}
+                        >
                             Sign Transaction
                         </Button>
-                        <Button className="bg-accent text-black hover:bg-accent disabled:bg-gray-600 disabled:text-gray-400">
+                        <Button className="bg-accent text-black hover:bg-accent disabled:bg-gray-600 disabled:text-gray-400"
+                            onClick={() => executeTransaction(selectedEvent as any)}>
                             Execute Transaction
                         </Button>
                     </DialogFooter>
