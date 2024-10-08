@@ -3,17 +3,14 @@ import Link from "next/link";
 import React from "react";
 import { CircleCheck, Orbit } from 'lucide-react'
 import { ConnectButton } from "@rainbow-me/rainbowkit";
+import Navbar from "../Components/Navbar";
+import dynamic from "next/dynamic";
 
+const WelcomeComponent = dynamic(() => import("@/app/Components/pages/welcome/Welcome"), { ssr: false })
 function Welcome() {
     return (
         <div className="min-h-screen bg-black text-white">
-            <header className="flex justify-between items-center py-3 px-6 bg-dark-gray border-b border-border-light">
-                <div className="flex items-center space-x-2">
-                    <Orbit className="w-6 h-6 text-accent" />
-                    <span className="text-[#12FF80] font-bold text-xl">Orbit</span>
-                </div>
-                <ConnectButton />
-            </header>
+            <Navbar />
 
             <main className="container mx-auto px-4 mt-16 flex gap-4 min-h-[75vh] ">
                 <div className="w-1/2 bg-accent p-12 rounded-lg text-black ">
@@ -44,9 +41,7 @@ function Welcome() {
                         <p className="text-gray-400 mb-6 max-w-xs text-center">
                             Connect your wallet to create a new Safe Account or open an existing one
                         </p>
-                        <button className="bg-accent text-black font-semibold py-3 px-6 rounded max-w-max">
-                            Connect wallet
-                        </button>
+                        <WelcomeComponent />
                     </div>
                 </div>
             </main>
