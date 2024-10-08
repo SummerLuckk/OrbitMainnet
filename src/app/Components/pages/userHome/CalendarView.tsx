@@ -15,6 +15,7 @@ import {
     SelectTrigger,
     SelectValue,
 } from "@/components/ui/select"
+import NewTransaction from './NewTransaction'
 
 
 
@@ -338,99 +339,7 @@ export default function CalendarView() {
                     <DialogHeader>
                         <DialogTitle>Schedule New Transaction</DialogTitle>
                     </DialogHeader>
-                    <div className="grid gap-4 py-4">
-                        <div className="grid grid-cols-4 items-center gap-4">
-                            <Label htmlFor="title" className="text-right">
-                                Title
-                            </Label>
-                            <Input
-                                id="title"
-                                value={newEvent.title}
-                                onChange={(e) => setNewEvent({ ...newEvent, title: e.target.value })}
-                                className="col-span-3 bg-[#2c2c2c] text-white border-[#3c3c3c]"
-                            />
-                        </div>
-                        <div className="grid grid-cols-4 items-center gap-4">
-                            <Label htmlFor="description" className="text-right">
-                                Description
-                            </Label>
-                            <Input
-                                id="description"
-                                value={newEvent.description}
-                                onChange={(e) => setNewEvent({ ...newEvent, description: e.target.value })}
-                                className="col-span-3 bg-[#2c2c2c] text-white border-[#3c3c3c]"
-                            />
-                        </div>
-                        <div className="grid grid-cols-4 items-center gap-4">
-                            <Label htmlFor="start" className="text-right">
-                                Start Time
-                            </Label>
-                            <Input
-                                id="start"
-                                type="datetime-local"
-                                value={moment(newEvent.start).format('YYYY-MM-DDTHH:mm')}
-                                onChange={(e) => setNewEvent({ ...newEvent, start: new Date(e.target.value) })}
-                                className="col-span-3 bg-[#2c2c2c] text-white border-[#3c3c3c]"
-                            />
-                        </div>
-                        <div className="grid grid-cols-4 items-center gap-4">
-                            <Label htmlFor="end" className="text-right">
-                                End Time
-                            </Label>
-                            <Input
-                                id="end"
-                                type="datetime-local"
-                                value={moment(newEvent.end).format('YYYY-MM-DDTHH:mm')}
-                                onChange={(e) => setNewEvent({ ...newEvent, end: new Date(e.target.value) })}
-                                className="col-span-3 bg-[#2c2c2c] text-white border-[#3c3c3c]"
-                            />
-                        </div>
-                        <div className="grid grid-cols-4 items-center gap-4">
-                            <Label htmlFor="receiver" className="text-right">
-                                Receiver
-                            </Label>
-                            <Input
-                                id="receiver"
-                                value={newEvent.receiver}
-                                onChange={(e) => setNewEvent({ ...newEvent, receiver: e.target.value })}
-                                className="col-span-3 bg-[#2c2c2c] text-white border-[#3c3c3c]"
-                            />
-                        </div>
-                        <div className="grid grid-cols-4 items-center gap-4">
-                            <Label htmlFor="amount" className="text-right">
-                                Amount
-                            </Label>
-                            <Input
-                                id="amount"
-                                value={newEvent.amount}
-                                onChange={(e) => setNewEvent({ ...newEvent, amount: e.target.value })}
-                                className="col-span-3 bg-[#2c2c2c] text-white border-[#3c3c3c]"
-                            />
-                        </div>
-                        <div className="grid grid-cols-4 items-center gap-4">
-                            <Label htmlFor="currency" className="text-right">
-                                Currency
-                            </Label>
-                            <Input
-                                id="currency"
-                                value={newEvent.currency}
-                                onChange={(e) => setNewEvent({ ...newEvent, currency: e.target.value })}
-                                className="col-span-3 bg-[#2c2c2c] text-white border-[#3c3c3c]"
-                            />
-                        </div>
-                        <div className="grid grid-cols-4 items-center gap-4">
-                            <Label htmlFor="requiredSignatures" className="text-right">
-                                Required Signatures
-                            </Label>
-                            <Input
-                                id="requiredSignatures"
-                                type="number"
-                                value={newEvent.requiredSignatures}
-                                onChange={(e) => setNewEvent({ ...newEvent, requiredSignatures: parseInt(e.target.value) })}
-                                className="col-span-3 bg-[#2c2c2c] text-white border-[#3c3c3c]"
-                            />
-                        </div>
-                    </div>
+                    <NewTransaction date={newEvent.end as Date} />
                     <DialogFooter>
                         <Button onClick={handleAddEvent} className="bg-blue-600 text-white hover:bg-blue-700">Schedule Transaction</Button>
                     </DialogFooter>

@@ -3,7 +3,7 @@
 import React from 'react';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { WagmiProvider } from 'wagmi';
-import { getDefaultConfig, RainbowKitProvider } from '@rainbow-me/rainbowkit';
+import { darkTheme, getDefaultConfig, RainbowKitProvider } from '@rainbow-me/rainbowkit';
 
 const bittorrentchainTestnet = {
     id: 1029,
@@ -15,9 +15,6 @@ const bittorrentchainTestnet = {
     },
     rpcUrls: {
         default: { http: ["https://pre-rpc.bittorrentchain.io/"] },
-    },
-    blockExplorers: {
-        default: { name: "schedule-transactions scan", url: "https://testscan.bittorrentchain.io/" },
     },
     testnet: true,
 };
@@ -34,7 +31,13 @@ export default function Providers({ children }: { children: React.ReactNode }) {
     return (
         <WagmiProvider config={config}>
             <QueryClientProvider client={queryClient}>
-                <RainbowKitProvider>{children}</RainbowKitProvider>
+                <RainbowKitProvider theme={darkTheme({
+                    accentColor: '#FFE227',
+                    accentColorForeground: 'black',
+                    borderRadius: 'small',
+                    fontStack: 'system',
+                    overlayBlur: 'small',
+                })}>{children}</RainbowKitProvider>
             </QueryClientProvider>
         </WagmiProvider>
     );

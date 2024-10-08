@@ -19,20 +19,23 @@ import { useParams } from "next/navigation";
 import { Button } from "@/components/ui/button";
 
 const factoryAddress = contract.OrbitFactoryContractAddress;
+interface NewTransactionProps {
+    date?: Date
+}
 
-
-export default function NewTransaction() {
+export default function NewTransaction({ date }: NewTransactionProps) {
     const params = useParams<{ address: string }>()
     console.log(params.address)
     // const [loading, setLoading] = useState(false);
     // const [error, setError] = useState('');
     // const [userWallet, setUserWallet] = useState<MultisigWallet>();
     const WalletContractAddress = params.address;
+    console.log(date)
     const [newTransaction, setNewTransaction] = useState({
         to: '',
         amount: '',
         tokenAddress: '',
-        date: new Date().toISOString().split('T')[0],
+        date: date ? date.toISOString().split('T')[0] : new Date().toISOString().split('T')[0],
     });
     const [isERC20, setIsERC20] = useState(false);
     const [tokenDetails, setTokenDetails] = useState<TokenDetails | null>(null);
@@ -199,7 +202,7 @@ export default function NewTransaction() {
                 </div>
 
                 <div>
-                    <label htmlFor="name" className="block text-sm font-medium text-gray-400 mb-1">Amount</label>
+                    <label htmlFor="name" className="block text-sm font-medium text-gray-400 mb-1">Date</label>
                     <input
                         type="date"
                         value={newTransaction.date}
