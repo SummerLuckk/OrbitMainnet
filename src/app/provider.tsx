@@ -16,6 +16,9 @@ const bittorrentchainTestnet = {
     rpcUrls: {
         default: { http: ["https://pre-rpc.bittorrentchain.io/"] },
     },
+    blockExplorers: {
+        default: { name: "schedule-transactions scan", url: "https://testscan.bittorrentchain.io/" },
+    },
     testnet: true,
 };
 

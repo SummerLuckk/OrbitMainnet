@@ -10,13 +10,25 @@ interface TokenDetails {
   balance: bigint; // Assuming balance is a BigInt
 }
 
-const publicClient = createPublicClient({
-  chain: {
-    id: 1028, // BTTC Donau testnet chain ID
-    rpcUrls: {
-      public: "https://pre-rpc.bittorrentchain.io/", // BTTC Donau testnet RPC URL
-    },
+const bittorrentchainTestnet = {
+  id: 1029,
+  name: "BitTorrent Chain Donau",
+  nativeCurrency: {
+    decimals: 18,
+    name: "BitTorrent Chain Donau",
+    symbol: "BTT",
   },
+  rpcUrls: {
+    default: { http: ["https://pre-rpc.bittorrentchain.io/"] },
+  },
+  blockExplorers: {
+    default: { name: "schedule-transactions scan", url: "https://testscan.bittorrentchain.io/" },
+  },
+  testnet: true,
+};
+
+const publicClient = createPublicClient({
+  chain: bittorrentchainTestnet,
   transport: http("https://pre-rpc.bittorrentchain.io/"), // Passing RPC URL to http function
 });
 
@@ -38,7 +50,7 @@ export async function getTokenDetails(TokenAddress: string, userAddress: string)
       name,
       symbol,
       decimals: decimals.toString(),
-      balance :balance,
+      balance: balance,
     };
   } catch (error: any) {
     console.log("loading token error", error.message);
