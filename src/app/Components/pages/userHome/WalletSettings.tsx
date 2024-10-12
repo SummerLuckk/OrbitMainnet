@@ -178,7 +178,7 @@ export default function WalletSettings() {
                             </div>
                         </div>
                         <div className="py-4 text-right">
-                            <Button className="bg-accent text-black font-bold" onClick={handleAddSigner}>Save New Signer</Button>
+                            <Button className="bg-accent text-black font-bold" onClick={addOwner}>Save New Signer</Button>
                         </div>
                     </div>
                 </div>

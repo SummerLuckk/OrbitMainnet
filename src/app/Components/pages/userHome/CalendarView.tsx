@@ -23,7 +23,8 @@ import { useParams } from 'next/navigation'
 import { Address, Client, createWalletClient, custom, formatUnits, getContract, http } from 'viem'
 import { initializeClient } from '@/app/utils/publicClient'
 import { config } from '@/app/utils/config'
-import { bittorrentchainTestnet } from '@/app/utils/getToken'
+import { bittorrentchainTestnet, getTokenDetails } from '@/app/utils/getToken'
+import { TokenDetails } from '@/app/types/types'
 
 const localizer = momentLocalizer(moment);
 
@@ -35,6 +36,7 @@ type CalendarEvent = {
     amount: number;
     txIndex: number;
     currency: string; // Adjust this if you have currency data
+    executed: boolean;
 };
 
 const eventColors = {
@@ -74,6 +76,11 @@ export default function CalendarView() {
     const { address } = useAccount()
     const [date, setDate] = useState(new Date());
     const [signatures, setSignatures] = useState([])
+    const [signerAddress, setSignerAddresses] = useState<string[]>([]);
+    const [tokenDetails, setTokenDetails] = useState<TokenDetails | null>(null);
+
+
+
     // const [events, setEvents] = useState<CalendarEvent[]>([
     //     {
     //         id: '1',
@@ -245,30 +252,48 @@ export default function CalendarView() {
         defaultView: Views.MONTH,
     }), [])
 
+    
+    const loadTokenDetails = async (tokenAddress: Address): Promise<TokenDetails | null> => {
+        if (tokenAddress && address) { 
+            console.log(address);
+            const details = await getTokenDetails(tokenAddress, address);
+            return details;
+        }
+        return null; 
+    };
+
 
     const calendarEvents = transactions.map((tx: Transaction) => {
+       
+        
         return {
             txIndex: tx.txIndex,
             title: `${tx.receiver}`,
             receiver: tx.receiver,
             date: tx.date,
-            start: new Date(Number(tx.date)), // Ensure `tx.date` is properly converted
+            start: new Date(Number(tx.date)),
             end: new Date(Number(tx.date)),
             allDay: true,
             nonce: `${tx.nonce}`,
             tokenAddress: tx.tokenAddress,
             amt: tx.amount,
-            amount: `${formatUnits(tx.amount, 18)} `, // Adjust this if you have amount data
-            currency: 'BTTC', // Adjust this if you have currency data
+            amount: `${formatUnits(tx.amount, 18)} `, 
+            currency: 'BTTC', 
+            executed: tx.executed
         };
+        
     });
 
     const fetchSignatures = async (txIndex: number) => {
         try {
+            console.log(txIndex);
             const response = await fetch(`/api/manage-signature?walletAddress=${walletAddress}&txIndex=${txIndex}`)
             const data = await response.json();
             console.log("signatures", data)
             setSignatures(data.signatures.map((s: any) => s.signature));
+            setSignerAddresses(data.signatures.map((s: any) => s.signerAddress));
+            const signerAddress=data.signatures.map((s: any) => s.signerAddress);
+            console.log(signerAddress,address)
         } catch (error) {
             console.error('Error fetching signatures:', error);
         }
@@ -343,19 +368,65 @@ export default function CalendarView() {
     };
 
     const executeTransaction = async (transaction: Transaction) => {
-        // ...execute transaction logic
-        console.log(signatures)
-        await writeContractAsync({
-            address: walletAddress as Address,
-            abi: OrbitWalletABI,
-            functionName: "executeScheduledTransaction",
-            args: [
-                transaction.txIndex,
-                signatures
-            ],
-            value: transaction.amt
-        });
+
+        console.log(transaction);
+
+        if(transaction.tokenAddress ==="0x0000000000000000000000000000000000000000")
+        {
+            console.log(signatures)
+            await writeContractAsync({
+                address: walletAddress as Address,
+                abi: OrbitWalletABI,
+                functionName: "executeScheduledTransaction",
+                args: [
+                    transaction.txIndex,
+                    signatures
+                ],
+                value: transaction.amt
+            });
+        }
+        else{
+            console.log(signatures)
+            await writeContractAsync({
+                address: walletAddress as Address,
+                abi: OrbitWalletABI,
+                functionName: "executeScheduledTransaction",
+                args: [
+                    transaction.txIndex,
+                    signatures
+                ],
+                value: BigInt(0)
+               
+            });
+        }
+      
+       
     }
+    const getEventStyle = (event:any) => {
+        const currentDate = moment();
+        const eventStartDate = moment(event.start);
+        console.log(eventStartDate);
+    
+        if (eventStartDate.isBefore(currentDate, 'day')) {
+            return {
+                style: { backgroundColor: 'red' }, // Past date
+            };
+        } else if (eventStartDate.isSame(currentDate, 'day')) {
+            return {
+                style: { backgroundColor: 'green' }, // Current date
+            };
+        } else {
+            return {
+                style: { backgroundColor: 'yellow' }, // Future date
+            };
+        }
+    };
+
+    const colorLegend = {
+        red: 'Past events (date has passed)',
+        green: 'Current events (today)',
+        yellow: 'Upcoming events (date is in the future)',
+    };
 
 
 
@@ -503,6 +574,16 @@ export default function CalendarView() {
     }
 `}</style>
 
+            {/* Legend */}
+            <div style={{ display: 'flex', marginBottom: '1rem' }}>
+    {Object.entries(colorLegend).map(([color, description]) => (
+        <div key={color} style={{ display: 'flex', alignItems: 'center', marginRight: '1rem' }}>
+            <span style={{ backgroundColor: color, width: '20px', height: '20px', marginRight: '0.5rem' }}></span>
+            <span>{description}</span>
+        </div>
+    ))}
+</div>
+
             <Calendar<CalendarEvent, object>
                 localizer={localizer}
                 events={calendarEvents as []}
@@ -512,7 +593,7 @@ export default function CalendarView() {
                 onSelectEvent={handleSelectEvent}
                 selectable
                 style={{ height: 'calc(100vh - 2rem)' }}
-                // eventPropGetter={eventStyleGetter}
+                eventPropGetter={getEventStyle}
                 components={components as any}
                 defaultView={defaultView}
                 views={['month', 'week', 'day', 'agenda']}
@@ -558,6 +639,18 @@ export default function CalendarView() {
                             <span className="ml-2 text-gray-300">{selectedEvent?.amount} {selectedEvent?.currency}</span>
                         </div>
                         <p><strong>Signatures:</strong> {signatures.length} / {threshold as number}</p>
+                        <p>
+                        <strong>Signed By:</strong> 
+                        {signerAddress.length > 0 ? '' : 'No signers'}
+                        </p>
+                        {signerAddress.length > 0 && (
+                        <p>
+                        {signerAddress.join(', ')}
+                        </p>
+                        )}
+
+
+
                         {/* <p className="font-semibold">
                             Signatures: {selectedEvent?.currentSignatures} / {selectedEvent?.requiredSignatures}
                         </p> */}
@@ -570,15 +663,24 @@ export default function CalendarView() {
                         </div> */}
                     </div>
                     <DialogFooter>
-                        <Button className="bg-transparent text-accent border border-accent hover:bg-accent hover:text-black disabled:bg-gray-600 disabled:text-gray-400"
+                    {!signerAddress.includes(address as string) ? (
+                        <Button 
+                            className="bg-transparent text-accent border border-accent hover:bg-accent hover:text-black"
                             onClick={() => signTransaction(selectedEvent as any)}
                         >
                             Sign Transaction
                         </Button>
-                        <Button className="bg-accent text-black hover:bg-accent disabled:bg-gray-600 disabled:text-gray-400"
+                        ) : (
+                        <span>Approval Given</span>
+                        )}
+                        {!selectedEvent?.executed?
+                        (<Button className="bg-accent text-black hover:bg-accent disabled:bg-gray-600 disabled:text-gray-400"
                             onClick={() => executeTransaction(selectedEvent as any)}>
+                            
                             Execute Transaction
-                        </Button>
+                        </Button>)
+                        : (
+                            <span>Executed</span>)}
                     </DialogFooter>
                 </DialogContent>
             </Dialog>

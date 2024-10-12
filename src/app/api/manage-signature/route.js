@@ -68,7 +68,7 @@ export async function GET(req) {
 
   try {
     // Fetch all signatures for the given wallet address and transaction index
-    const signatures = await collection.find({ walletAddress, txIndex:"0" }).toArray();
+    const signatures = await collection.find({ walletAddress, txIndex:txIndex }).toArray();
 
     return new NextResponse(
       JSON.stringify({ signatures }),
