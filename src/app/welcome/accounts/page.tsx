@@ -114,10 +114,11 @@ function Accounts() {
                                     </div>
                                 </div>
                                 <div className="flex items-center space-x-3">
-                                <span className="font-bold">BTTC</span>
+                               
                                 <span className="text-white ml-2">
                                 {balances[wallet.walletAddress] ? formatUnits(BigInt(balances[wallet.walletAddress]), 18) : "Loading..."}
                                 </span>
+                                <span className="font-bold">BTT</span>
                                 <button>
                                 <MoreVertical className="text-gray-400" />
                                 </button>

@@ -127,7 +127,7 @@ export default function MainComponent() {
                             <div>
                                 <p className="text-sm font-semibold">{walletDetails ? walletDetails.name : "Just For Fun"}</p>
                                 <p className="text-xs text-gray-400">{walletAddress ? truncateAddress(walletAddress.toString()) : ""}</p>
-                                <p className="text-xs text-gray-400">Balance: {balance !== null ? balance : "Loading..."}</p>
+                                <p className="text-xs text-gray-400">Balance: {balance !== null ? balance : "Loading..."} <span className="font-bold">BTT</span></p>
                             </div>
                             <div className="ml-4 flex justify-start gap-4">
                                 <button className="rounded-lg bg-black text-accent p-2">
