@@ -24,10 +24,10 @@ export async function GET(req: Request) {
   const client = await MongoClient.connect(MONGODB_URI);
   const db = client.db(DB_NAME);
   const collection = db.collection(COLLECTION_NAME);
-
+  
   try {
     // Find all wallets created by the specified user
-    const wallets = await collection.find({ createdBy }).toArray();
+    const wallets = await collection.find({  signerAddresses: createdBy}).toArray();
 
     if (wallets.length === 0) {
       return new NextResponse(
