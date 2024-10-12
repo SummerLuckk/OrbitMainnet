@@ -95,6 +95,10 @@ export default function MainComponent() {
         }
     };
 
+    const menuItems: MenuItem[] = ['Dashboard', 'New Transaction', 'Settings'];
+
+
+
     return (
         <div className="flex min-h-screen bg-dark-black text-white font-dmsans">
             {/* Sidebar */}
@@ -139,22 +143,22 @@ export default function MainComponent() {
                     </button>
                 </div>
                 <nav className='px-4'>
-                    <ul className="space-y-2">
-                        {['Dashboard', 'New Transaction', 'Settings'].map(item => (
-                            <li key={item}>
-                                <button
-                                    className={`flex w-full items-center text-sm font-bold rounded-lg p-4 ${activeMenuItem === item ? 'bg-border-light' : 'hover:bg-accent-light'}`}
-                                    onClick={() => setActiveMenuItem(item)}
-                                >
-                                    {item === 'Dashboard' && <Home className="mr-4 w-4 h-4" />}
-                                    {item === 'New Transaction' && <PlusCircle className="mr-4 w-4 h-4" />}
-                                    {item === 'Settings' && <Settings className="mr-4 w-4 h-4" />}
-                                    {item}
-                                </button>
-                            </li>
-                        ))}
-                    </ul>
-                </nav>
+    <ul className="space-y-2">
+        {menuItems.map((item) => (
+            <li key={item}>
+                <button
+                    className={`flex w-full items-center text-sm font-bold rounded-lg p-4 ${activeMenuItem === item ? 'bg-border-light' : 'hover:bg-accent-light'}`}
+                    onClick={() => setActiveMenuItem(item as MenuItem)} // Cast item to MenuItem
+                >
+                    {item === 'Dashboard' && <Home className="mr-4 w-4 h-4" />}
+                    {item === 'New Transaction' && <PlusCircle className="mr-4 w-4 h-4" />}
+                    {item === 'Settings' && <Settings className="mr-4 w-4 h-4" />}
+                    {item}
+                </button>
+            </li>
+        ))}
+    </ul>
+</nav>
             </div>
 
             {/* Main content */}
@@ -164,4 +168,6 @@ export default function MainComponent() {
             </div>
         </div>
     );
+
+    
 }
