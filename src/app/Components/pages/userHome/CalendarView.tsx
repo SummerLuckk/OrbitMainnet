@@ -432,7 +432,7 @@ export default function CalendarView() {
 
     const colorLegend = {
         "trans-red": 'Past events (date has passed)',
-        "tx-green": 'Current events (today)',
+        "trans-green": 'Current events (today)',
         "accent": 'Upcoming events (date is in the future)',
     };
 
@@ -592,7 +592,7 @@ export default function CalendarView() {
             <div className='flex flex-col md:flex-row mb-6 gap-2 md:gap-3'>
                 {Object.entries(colorLegend).map(([color, description]) => (
                     <div key={color} className='flex items-center'>
-                        <span className={`w-5 h-5 mr-2 rounded-sm bg-${color}`}></span>
+                        <span style={{ background: color }} className={`w-5 h-5 mr-2 rounded-sm ${color === "trans-green" ? "bg-trans-green" : color === "trans-red" ? "bg-trans-red" : "bg-accent"}`}></span>
                         <span>{description}</span>
                     </div>
                 ))}

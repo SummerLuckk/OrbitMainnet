@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useRef, useState } from 'react';
-import { ChevronLeft, Copy, Home, Menu, PanelLeftClose, PanelLeftOpen, PlusCircle, Settings } from 'lucide-react';
+import { ChevronLeft, CircleCheck, Copy, CopyCheck, Home, Menu, PanelLeftClose, PanelLeftOpen, PlusCircle, Settings } from 'lucide-react';
 import Blockies from "react-blockies";
 import Dashboard from './Dashboard';
 import NewTransaction from './NewTransaction';
@@ -11,6 +11,7 @@ import { useParams } from 'next/navigation';
 import { truncateAddress } from '@/app/utils/truncateAddress';
 import { Address, createPublicClient, formatUnits, http } from 'viem';
 import { Button } from '@/components/ui/button';
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 
 
 const bittorrentchainTestnet = {
@@ -52,6 +53,7 @@ export default function MainComponent() {
     const params = useParams();
     const sidebarRef = useRef<HTMLDivElement>(null)
     const walletAddress = params.address;
+    const [copyStatus, setCopyStatus] = useState<{ [key: string]: boolean }>({});
 
     const handleClickOutside = (event: MouseEvent) => {
         if (sidebarRef.current && !sidebarRef.current.contains(event.target as Node)) {
@@ -122,6 +124,16 @@ export default function MainComponent() {
         toggleSidebar()
     }
 
+    const handleCopy = (address: string, identifier: string) => {
+        navigator.clipboard.writeText(address).then(() => {
+            // Show the check icon for 2 seconds after copying
+            setCopyStatus((prev) => ({ ...prev, [identifier]: true }));
+            setTimeout(() => {
+                setCopyStatus((prev) => ({ ...prev, [identifier]: false }));
+            }, 2000);
+        });
+    };
+
     return (
         <div className="flex w-full h-[calc(100vh-64.8px)] bg-dark-black text-white font-dmsans">
             {/* Hamburger button for mobile */}
@@ -151,10 +163,21 @@ export default function MainComponent() {
                                 <p className="text-xs text-gray-400">{walletAddress ? truncateAddress(walletAddress.toString()) : ""}</p>
                                 <p className="text-xs text-gray-400">Balance: {balance !== null ? balance : "Loading..."} <span className="font-bold">BTT</span></p>
                             </div>
+
                             <div className="ml-4 flex justify-start gap-4">
-                                <button className="rounded-lg bg-black text-accent p-2">
-                                    <Copy className="h-4 w-4" />
-                                </button>
+                                <TooltipProvider>
+                                    <Tooltip>
+                                        <TooltipTrigger>
+                                            <button className="rounded-lg bg-black text-accent p-2" onClick={() => handleCopy(walletAddress.toString(), "profile")}>
+                                                {copyStatus['profile'] ? <CircleCheck className="h-4 w-4" /> : <Copy className="h-4 w-4" />}
+                                            </button>
+                                        </TooltipTrigger>
+                                        <TooltipContent className='bg-black text-white'>
+                                            <p>Copy Address</p>
+                                        </TooltipContent>
+                                    </Tooltip>
+                                </TooltipProvider>
+
                             </div>
                         </div>
                     </div>
