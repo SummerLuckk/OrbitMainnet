@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useRef, useState } from 'react';
-import { ChevronLeft, CircleCheck, Copy, CopyCheck, Home, Menu, PanelLeftClose, PanelLeftOpen, PlusCircle, Settings } from 'lucide-react';
+import { ChevronLeft, CircleCheck, Copy, CopyCheck, Home, Info, Menu, PanelLeftClose, PanelLeftOpen, PlusCircle, Settings } from 'lucide-react';
 import Blockies from "react-blockies";
 import Dashboard from './Dashboard';
 import NewTransaction from './NewTransaction';
@@ -219,7 +219,25 @@ export default function MainComponent() {
 
             {/* Main content */}
             <div className="flex-1 p-4 md:p-8 pt-20 md:pt-10 overflow-y-scroll custom-scroll">
+                {activeMenuItem === "New Transaction" && <div className='flex flex-col mb-4'>
+                    <p className='text-gray-400 flex items-center gap-2'>Total Wallet Balance
+                        <TooltipProvider>
+                            <Tooltip>
+                                <TooltipTrigger>
+                                    <Info className='w-4 h-4' />
+                                </TooltipTrigger>
+                                <TooltipContent className='bg-black text-white'>
+                                    <p>Orbit Wallet Balance from which the token will be transfered.</p>
+                                </TooltipContent>
+                            </Tooltip>
+                        </TooltipProvider>
+                    </p>
+                    <p className='text-2xl'>{balance ? balance : 0} BTT</p>
+                </div>
+                }
                 <h2 className="mb-4 text-2xl font-semibold">{activeMenuItem}</h2>
+
+
                 {renderContent()}
             </div>
 
