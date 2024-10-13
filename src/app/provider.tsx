@@ -29,7 +29,8 @@ export default function Providers({ children }: { children: React.ReactNode }) {
         appName: "RainbowKit demo",
         projectId: "f8a6524307e28135845a9fe5811fcaa2",
         chains: [bittorrentchainTestnet],
-        ssr: true,
+        ssr: false,
+
     });
     return (
         <WagmiProvider config={config}>

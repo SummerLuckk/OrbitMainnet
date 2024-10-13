@@ -25,6 +25,7 @@ import { initializeClient } from '@/app/utils/publicClient'
 import { config } from '@/app/utils/config'
 import { bittorrentchainTestnet, getTokenDetails } from '@/app/utils/getToken'
 import { TokenDetails } from '@/app/types/types'
+import { useWindowSize } from '@/hooks/useWindowSize'
 
 const localizer = momentLocalizer(moment);
 
@@ -70,9 +71,11 @@ interface Transaction {
 }
 
 export default function CalendarView() {
+    const { isMobile } = useWindowSize()
+    console.log("is Mobileeee", isMobile)
     const params = useParams()
     const walletAddress = params.address
-    const [view, setView] = useState<View>('month');
+    const [view, setView] = useState<View>(isMobile ? 'day' : 'month');
     const { address } = useAccount()
     const [date, setDate] = useState(new Date());
     const [signatures, setSignatures] = useState([])
@@ -80,7 +83,13 @@ export default function CalendarView() {
     const [tokenDetails, setTokenDetails] = useState<TokenDetails | null>(null);
 
 
-
+    useEffect(() => {
+        if (isMobile) {
+            setView('day')
+        } else {
+            setView('month')
+        }
+    }, [isMobile])
     // const [events, setEvents] = useState<CalendarEvent[]>([
     //     {
     //         id: '1',
@@ -249,23 +258,23 @@ export default function CalendarView() {
             toolbar: CustomToolbar,
             event: CustomEvent,
         },
-        defaultView: Views.MONTH,
+        defaultView: isMobile ? Views.DAY : Views.MONTH,
     }), [])
 
-    
+
     const loadTokenDetails = async (tokenAddress: Address): Promise<TokenDetails | null> => {
-        if (tokenAddress && address) { 
+        if (tokenAddress && address) {
             console.log(address);
             const details = await getTokenDetails(tokenAddress, address);
             return details;
         }
-        return null; 
+        return null;
     };
 
 
     const calendarEvents = transactions.map((tx: Transaction) => {
-       
-        
+
+
         return {
             txIndex: tx.txIndex,
             title: `${tx.receiver}`,
@@ -277,11 +286,11 @@ export default function CalendarView() {
             nonce: `${tx.nonce}`,
             tokenAddress: tx.tokenAddress,
             amt: tx.amount,
-            amount: `${formatUnits(tx.amount, 18)} `, 
-            currency: 'BTTC', 
+            amount: `${formatUnits(tx.amount, 18)} `,
+            currency: 'BTTC',
             executed: tx.executed
         };
-        
+
     });
 
     const fetchSignatures = async (txIndex: number) => {
@@ -292,8 +301,8 @@ export default function CalendarView() {
             console.log("signatures", data)
             setSignatures(data.signatures.map((s: any) => s.signature));
             setSignerAddresses(data.signatures.map((s: any) => s.signerAddress));
-            const signerAddress=data.signatures.map((s: any) => s.signerAddress);
-            console.log(signerAddress,address)
+            const signerAddress = data.signatures.map((s: any) => s.signerAddress);
+            console.log(signerAddress, address)
         } catch (error) {
             console.error('Error fetching signatures:', error);
         }
@@ -371,8 +380,7 @@ export default function CalendarView() {
 
         console.log(transaction);
 
-        if(transaction.tokenAddress ==="0x0000000000000000000000000000000000000000")
-        {
+        if (transaction.tokenAddress === "0x0000000000000000000000000000000000000000") {
             console.log(signatures)
             await writeContractAsync({
                 address: walletAddress as Address,
@@ -385,7 +393,7 @@ export default function CalendarView() {
                 value: transaction.amt
             });
         }
-        else{
+        else {
             console.log(signatures)
             await writeContractAsync({
                 address: walletAddress as Address,
@@ -396,17 +404,17 @@ export default function CalendarView() {
                     signatures
                 ],
                 value: BigInt(0)
-               
+
             });
         }
-      
-       
+
+
     }
-    const getEventStyle = (event:any) => {
+    const getEventStyle = (event: any) => {
         const currentDate = moment();
         const eventStartDate = moment(event.start);
         console.log(eventStartDate);
-    
+
         if (eventStartDate.isBefore(currentDate, 'day')) {
             return {
                 style: { backgroundColor: 'red' }, // Past date
@@ -423,9 +431,9 @@ export default function CalendarView() {
     };
 
     const colorLegend = {
-        red: 'Past events (date has passed)',
-        green: 'Current events (today)',
-        yellow: 'Upcoming events (date is in the future)',
+        "trans-red": 'Past events (date has passed)',
+        "tx-green": 'Current events (today)',
+        "accent": 'Upcoming events (date is in the future)',
     };
 
 
@@ -502,6 +510,12 @@ export default function CalendarView() {
     .rbc-time-gutter.rbc-timeslot-group {
         border-bottom: none;
     }
+    .rbc-time-column .rbc-timeslot-group{
+        border-left:1px solid #2c2c2c;
+    }
+    .rbc-day-slot .rbc-time-slot{
+        border-top:1px solid #2c2c2c;
+    }
 
     .rbc-time-gutter.rbc-time-slot {
         color: #6B7280;
@@ -575,16 +589,16 @@ export default function CalendarView() {
 `}</style>
 
             {/* Legend */}
-            <div style={{ display: 'flex', marginBottom: '1rem' }}>
-    {Object.entries(colorLegend).map(([color, description]) => (
-        <div key={color} style={{ display: 'flex', alignItems: 'center', marginRight: '1rem' }}>
-            <span style={{ backgroundColor: color, width: '20px', height: '20px', marginRight: '0.5rem' }}></span>
-            <span>{description}</span>
-        </div>
-    ))}
-</div>
+            <div className='flex flex-col md:flex-row mb-6 gap-2 md:gap-3'>
+                {Object.entries(colorLegend).map(([color, description]) => (
+                    <div key={color} className='flex items-center'>
+                        <span className={`w-5 h-5 mr-2 rounded-sm bg-${color}`}></span>
+                        <span>{description}</span>
+                    </div>
+                ))}
+            </div>
 
-            <Calendar<CalendarEvent, object>
+            {view && <Calendar<CalendarEvent, object>
                 localizer={localizer}
                 events={calendarEvents as []}
                 startAccessor="start"
@@ -595,7 +609,7 @@ export default function CalendarView() {
                 style={{ height: 'calc(100vh - 2rem)' }}
                 eventPropGetter={getEventStyle}
                 components={components as any}
-                defaultView={defaultView}
+                // defaultView={defaultView}
                 views={['month', 'week', 'day', 'agenda']}
                 view={view} // Include the view prop
                 date={date} // Include the date prop
@@ -603,7 +617,7 @@ export default function CalendarView() {
                 onNavigate={(date) => {
                     setDate(new Date(date));
                 }}
-            />
+            />}
 
             <Dialog open={isAddingEvent} onOpenChange={setIsAddingEvent}>
                 <DialogContent className="sm:max-w-[425px] bg-[#1E1E1E] text-white max-h-[90vh] overflow-y-auto">
@@ -640,13 +654,13 @@ export default function CalendarView() {
                         </div>
                         <p><strong>Signatures:</strong> {signatures.length} / {threshold as number}</p>
                         <p>
-                        <strong>Signed By:</strong> 
-                        {signerAddress.length > 0 ? '' : 'No signers'}
+                            <strong>Signed By:</strong>
+                            {signerAddress.length > 0 ? '' : 'No signers'}
                         </p>
                         {signerAddress.length > 0 && (
-                        <p>
-                        {signerAddress.join(', ')}
-                        </p>
+                            <p>
+                                {signerAddress.join(', ')}
+                            </p>
                         )}
 
 
@@ -663,24 +677,24 @@ export default function CalendarView() {
                         </div> */}
                     </div>
                     <DialogFooter>
-                    {!signerAddress.includes(address as string) ? (
-                        <Button 
-                            className="bg-transparent text-accent border border-accent hover:bg-accent hover:text-black"
-                            onClick={() => signTransaction(selectedEvent as any)}
-                        >
-                            Sign Transaction
-                        </Button>
+                        {!signerAddress.includes(address as string) ? (
+                            <Button
+                                className="bg-transparent text-accent border border-accent hover:bg-accent hover:text-black"
+                                onClick={() => signTransaction(selectedEvent as any)}
+                            >
+                                Sign Transaction
+                            </Button>
                         ) : (
-                        <span>Approval Given</span>
+                            <span>Approval Given</span>
                         )}
-                        {!selectedEvent?.executed?
-                        (<Button className="bg-accent text-black hover:bg-accent disabled:bg-gray-600 disabled:text-gray-400"
-                            onClick={() => executeTransaction(selectedEvent as any)}>
-                            
-                            Execute Transaction
-                        </Button>)
-                        : (
-                            <span>Executed</span>)}
+                        {!selectedEvent?.executed ?
+                            (<Button className="bg-accent text-black hover:bg-accent disabled:bg-gray-600 disabled:text-gray-400"
+                                onClick={() => executeTransaction(selectedEvent as any)}>
+
+                                Execute Transaction
+                            </Button>)
+                            : (
+                                <span>Executed</span>)}
                     </DialogFooter>
                 </DialogContent>
             </Dialog>
@@ -719,13 +733,13 @@ const CustomToolbar: React.FC<ToolbarProps> = ({
                 <Button variant="outline" size="sm" onClick={() => onNavigate('TODAY')} className="text-white bg-transparent border-border-light">
                     Today
                 </Button>
-                <Select onValueChange={(value) => onView(value as View)} defaultValue={view}>
+                <Select onValueChange={(value) => onView(value as View)} value={view}>
                     <SelectTrigger className="w-[180px]">
                         <SelectValue placeholder="Select Time" />
                     </SelectTrigger>
                     <SelectContent className='bg-dark-gray'>
                         <SelectItem value="day" className='bg-dark-gray text-accent'>Day</SelectItem>
-                        <SelectItem value="month" defaultChecked className='bg-dark-gray text-accent'>Month</SelectItem>
+                        <SelectItem value="month" className='bg-dark-gray text-accent'>Month</SelectItem>
                         <SelectItem value="week" className='bg-dark-gray text-accent'>Weekly</SelectItem>
                         <SelectItem value="agenda" className='bg-dark-gray text-accent'>Agenda</SelectItem>
                     </SelectContent>

@@ -20,6 +20,8 @@ const config: Config = {
         "custom-green": "#2FFF6A",
         "custom-orange": "#FF8709",
         "custom-pink": "#FEC5FB",
+        "trans-green": "#10bb35",
+        "trans-red": "#f2685b",
         accent: {
           DEFAULT: "#FFE227",
           foreground: "hsl(var(--accent-foreground))",

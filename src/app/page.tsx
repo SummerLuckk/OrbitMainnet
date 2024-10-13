@@ -11,9 +11,9 @@ function Home() {
   return (
     <div className="min-h-screen bg-black text-white font-dmsans">
 
-      <main className="container mx-auto px-4 mt-16 flex gap-4 min-h-[75vh] ">
-        <div className="w-1/2 bg-accent p-12 rounded-lg text-black">
-          <h1 className="text-5xl font-bold mb-6">Revolutionize Your Ownership Experience</h1>
+      <main className="container mx-auto px-4 my-16 flex flex-col-reverse md:flex-row gap-4  md:min-h-[75vh]">
+        <div className="w-full md:w-1/2 bg-accent p-12 rounded-lg text-black">
+          <h1 className="text-3xl md:text-5xl font-bold mb-6">Revolutionize Your Ownership Experience</h1>
           <p className="mb-8 text-lg">
             Introducing the ultimate multisig wallet, powered by innovative calendar features for effortless budget management.
           </p>
@@ -33,7 +33,7 @@ function Home() {
           </ul>
         </div>
 
-        <div className="w-1/2 pl-12 bg-dark-gray rounded-lg p-12 flex flex-col items-center justify-center">
+        <div className="w-full md:w-1/2 pl-12 bg-dark-gray rounded-lg p-12 flex flex-col items-center justify-center">
           <div className="flex flex-col items-center justify-center">
             <div className="flex items-center space-x-2 mb-6">
               <Orbit className="w-6 h-6 text-white" />
