@@ -103,7 +103,7 @@ export default function MainComponent() {
     const renderContent = () => {
         switch (activeMenuItem) {
         case 'Dashboard':
-            return <Dashboard />;
+            return <Dashboard balance={balance ? balance : null} />;
         case 'New Transaction':
             return <NewTransaction />;
         case 'Settings':
@@ -183,7 +183,7 @@ export default function MainComponent() {
                     </div>
 
                     <button className="mt-6 mb-4 w-full rounded-lg bg-accent py-2 text-center font-semibold text-black"
-                        onClick={() => setActiveMenuItem('New Transaction')}>
+                        onClick={() => handleMenuItemClick('New Transaction')}>
                         New Transaction
                     </button>
                 </div>
@@ -262,15 +262,24 @@ export default function MainComponent() {
                                     <p className="text-xs text-gray-400">Balance: {balance !== null ? balance : "Loading..."} <span className="font-bold">BTT</span></p>
                                 </div>
                                 <div className="ml-4 flex justify-start gap-4">
-                                    <button className="rounded-lg bg-black text-accent p-2">
-                                        <Copy className="h-4 w-4" />
-                                    </button>
+                                    <TooltipProvider>
+                                        <Tooltip>
+                                            <TooltipTrigger>
+                                                <button className="rounded-lg bg-black text-accent p-2" onClick={() => handleCopy(walletAddress.toString(), "profile")}>
+                                                    {copyStatus['profile'] ? <CircleCheck className="h-4 w-4" /> : <Copy className="h-4 w-4" />}
+                                                </button>
+                                            </TooltipTrigger>
+                                            <TooltipContent className='bg-black text-white'>
+                                                <p>Copy Address</p>
+                                            </TooltipContent>
+                                        </Tooltip>
+                                    </TooltipProvider>
                                 </div>
                             </div>
                         </div>
 
                         <button className="mt-6 mb-4 w-full rounded-lg bg-accent py-2 text-center font-semibold text-black"
-                            onClick={() => setActiveMenuItem('New Transaction')}>
+                            onClick={() => handleMenuItemClick('New Transaction')}>
                             New Transaction
                         </button>
                     </div>

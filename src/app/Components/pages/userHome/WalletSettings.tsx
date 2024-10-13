@@ -114,8 +114,8 @@ export default function WalletSettings() {
 
                                         />
                                         <div className="flex flex-col">
-                                            <span>{signer.name}</span>
-                                            <span>{signer.address}</span>
+                                            <span className="break-all">{signer.name}</span>
+                                            <span className="break-all">{signer.address}</span>
                                         </div>
                                     </div>)
                             }) : null}

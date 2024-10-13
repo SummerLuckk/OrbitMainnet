@@ -12,7 +12,7 @@ import OrbitWalletABI from "@/app/Contract/OrbitABI.json";
 import OrbitWalletFactoryABI from "@/app/Contract/OrbitFactoryABI.json";
 import { initializeClient } from "@/app/utils/publicClient";
 import { getTokenDetails } from "@/app/utils/getToken";
-import { Switch } from "@/components/ui/switch";
+import * as Switch from '@radix-ui/react-switch';
 import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
 import { useParams } from "next/navigation";
@@ -146,12 +146,17 @@ export default function NewTransaction({ date }: NewTransactionProps) {
             <div className="p-4 px-6 space-y-6 pt-6">
 
                 <div className="mb-4 flex items-center gap-2 pt-8">
-                    <Switch
+
+                    <Switch.Root
+                        className="relative w-[42px] h-[25px] rounded-full bg-black/90 shadow-md focus:outline-none focus:ring-2 focus:ring-black transition-colors duration-150 ease-in-out"
                         id="erc20-mode"
                         checked={isERC20}
-                        onCheckedChange={setIsERC20}
-                        className="bg-accent"
-                    />
+                        onCheckedChange={setIsERC20}>
+                        <Switch.Thumb
+                            className={`block w-[21px] h-[21px] ${isERC20 ? "bg-accent" : "bg-white"} rounded-full shadow-md transform transition-transform duration-100 ease-in-out will-change-transform`}
+                            style={{ transform: isERC20 ? 'translateX(19px)' : 'translateX(2px)' }}
+                        />
+                    </Switch.Root>
                     <Label htmlFor="erc20-mode">ERC20 Token Transfer</Label>
                 </div>
 

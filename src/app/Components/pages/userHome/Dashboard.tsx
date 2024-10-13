@@ -3,21 +3,26 @@
 import { useState } from "react"
 import CalendarView from "./CalendarView"
 
-export default function Dashboard() {
-    const [activeView, setActiveView] = useState<'calendar' | 'list'>('calendar')
+interface dashboardProps {
+    balance: string | null;
+}
 
+export default function Dashboard({ balance }: dashboardProps) {
+    const [activeView, setActiveView] = useState<'calendar' | 'list'>('calendar')
+    console.log("balance in dashboard", balance);
     return (
         <div>
+
             <div className="mb-4 flex space-x-2">
                 <button
-                    className={`rounded-lg px-4 py-2 ${activeView === 'calendar' ? 'bg-accent text-black' : 'bg-transparent border border-gray-400 hover:border-accent border-accent'
+                    className={`text-sm md:textmd rounded-lg px-2 py-1 md:px-4 md:py-2 ${activeView === 'calendar' ? 'bg-accent text-black' : 'bg-transparent border border-gray-400 hover:border-accent border-accent'
                         }`}
                     onClick={() => setActiveView('calendar')}
                 >
                     Calendar View
                 </button>
                 <button
-                    className={`rounded-lg px-4 py-2 ${activeView === 'list' ? 'bg-accent text-black' : 'bg-transparent border border-gray-400 hover:border-accent border-accent'
+                    className={`text-sm md:textmd rounded-lg px-2 py-1 md:px-4 md:py-2 ${activeView === 'list' ? 'bg-accent text-black' : 'bg-transparent border border-gray-400 hover:border-accent border-accent'
                         }`}
                     onClick={() => setActiveView('list')}
                 >
