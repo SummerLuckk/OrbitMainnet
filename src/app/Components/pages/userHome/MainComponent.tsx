@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useRef, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import { ChevronLeft, CircleCheck, Copy, CopyCheck, Home, Info, Menu, PanelLeftClose, PanelLeftOpen, PlusCircle, Settings } from 'lucide-react';
 import Blockies from "react-blockies";
 import Dashboard from './Dashboard';
@@ -52,7 +52,7 @@ export default function MainComponent() {
     const [balance, setBalance] = useState<string | null>(null);
     const params = useParams();
     const sidebarRef = useRef<HTMLDivElement>(null)
-    const walletAddress = params.address;
+    const walletAddress = params ? params.address : "";
     const [copyStatus, setCopyStatus] = useState<{ [key: string]: boolean }>({});
 
     const handleClickOutside = (event: MouseEvent) => {
@@ -81,24 +81,29 @@ export default function MainComponent() {
                 console.log('An error occurred while fetching wallets');
             }
         };
-
-        const fetchBalance = async () => {
-            if (walletAddress) {
-                try {
-                    const balanceData = await publicClient.getBalance({ address: walletAddress as Address });
-                    setBalance(formatUnits(balanceData, 18));
-                } catch (err) {
-                    console.error('Error fetching balance:', err);
-                    setBalance(null);
-                }
-            }
-        };
-
         if (walletAddress) {
             fetchWallets();
-            fetchBalance();
+
         }
     }, [walletAddress]);
+
+    const fetchBalance = useCallback(async () => {
+        if (walletAddress) {
+            try {
+                const balanceData = await publicClient.getBalance({ address: walletAddress as Address });
+                setBalance(formatUnits(balanceData, 18));
+            } catch (err) {
+                console.error('Error fetching balance:', err);
+                setBalance(null);
+            }
+        }
+    }, []);
+
+    useEffect(() => {
+        if (walletAddress && publicClient) {
+            fetchBalance();
+        }
+    }, [walletAddress, publicClient])
 
     const renderContent = () => {
         switch (activeMenuItem) {
@@ -124,15 +129,36 @@ export default function MainComponent() {
         toggleSidebar()
     }
 
-    const handleCopy = (address: string, identifier: string) => {
-        navigator.clipboard.writeText(address).then(() => {
+    const handleCopy = async (address: string, identifier: string) => {
+
+        try {
+            if (navigator.clipboard && window.isSecureContext) {
+                // For modern browsers
+                await navigator.clipboard.writeText(address)
+            } else {
+                // Fallback for older browsers
+                const textArea = document.createElement("textarea")
+                textArea.value = address
+                textArea.style.position = "fixed"
+                textArea.style.left = "-999999px"
+                textArea.style.top = "-999999px"
+                document.body.appendChild(textArea)
+                textArea.focus()
+                textArea.select()
+                document.execCommand('copy')
+                textArea.remove()
+            }
             // Show the check icon for 2 seconds after copying
             setCopyStatus((prev) => ({ ...prev, [identifier]: true }));
             setTimeout(() => {
                 setCopyStatus((prev) => ({ ...prev, [identifier]: false }));
             }, 2000);
-        });
+
+        } catch (err) {
+            console.log("Failed to copy text: ", err)
+        }
     };
+
 
     return (
         <div className="flex w-full h-[calc(100vh-64.8px)] bg-dark-black text-white font-dmsans">
@@ -161,14 +187,14 @@ export default function MainComponent() {
                             <div>
                                 <p className="text-sm font-semibold">{walletDetails ? walletDetails.name : "Just For Fun"}</p>
                                 <p className="text-xs text-gray-400">{walletAddress ? truncateAddress(walletAddress.toString()) : ""}</p>
-                                <p className="text-xs text-gray-400">Balance: {balance !== null ? balance : "Loading..."} <span className="font-bold">BTT</span></p>
+                                <p className="text-xs text-gray-400" style={{ unicodeBidi: 'plaintext' }}>Balance: {balance !== null ? Number(balance).toLocaleString() : "Loading..."} <span className="font-bold">BTT</span></p>
                             </div>
 
                             <div className="ml-4 flex justify-start gap-4">
                                 <TooltipProvider>
                                     <Tooltip>
                                         <TooltipTrigger>
-                                            <button className="rounded-lg bg-black text-accent p-2" onClick={() => handleCopy(walletAddress.toString(), "profile")}>
+                                            <button className="rounded-lg bg-black text-accent p-2" onClick={() => handleCopy(walletAddress?.toString(), "profile")}>
                                                 {copyStatus['profile'] ? <CircleCheck className="h-4 w-4" /> : <Copy className="h-4 w-4" />}
                                             </button>
                                         </TooltipTrigger>
@@ -218,7 +244,7 @@ export default function MainComponent() {
             </div>
 
             {/* Main content */}
-            <div className="flex-1 p-4 md:p-8 pt-20 md:pt-10 overflow-y-scroll custom-scroll">
+            <div className="flex-1 p-4 md:p-8 pt-20 md:pt-10 overflow-y-scroll pb-20 md:overflow-y-auto">
                 {activeMenuItem === "New Transaction" && <div className='flex flex-col mb-4'>
                     <p className='text-gray-400 flex items-center gap-2'>Total Wallet Balance
                         <TooltipProvider>
@@ -232,7 +258,7 @@ export default function MainComponent() {
                             </Tooltip>
                         </TooltipProvider>
                     </p>
-                    <p className='text-2xl'>{balance ? balance : 0} BTT</p>
+                    <p className='text-2xl' style={{ unicodeBidi: 'plaintext' }}>{balance ? balance.toLocaleString() : 0} BTT</p>
                 </div>
                 }
                 <h2 className="mb-4 text-2xl font-semibold">{activeMenuItem}</h2>
@@ -247,7 +273,7 @@ export default function MainComponent() {
             >
                 <div
                     ref={sidebarRef}
-                    className={`relative flex flex-col w-64 bg-dark-gray z-100 h-screen transform transition-transform duration-300 delay-300 ease-in-out ${isSidebarOpen ? 'translate-x-0' : '-translate-x-full'}`}>
+                    className={`relative flex flex-col w-64 bg-dark-gray z-100 h-dvh transform transition-transform duration-300 delay-300 ease-in-out ${isSidebarOpen ? 'translate-x-0' : '-translate-x-full'}`}>
                     <ul className="space-y-2 py-4 px-4 border-b border-border-light">
                         <li>
                             <div

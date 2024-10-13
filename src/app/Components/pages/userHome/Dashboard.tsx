@@ -11,8 +11,7 @@ export default function Dashboard({ balance }: dashboardProps) {
     const [activeView, setActiveView] = useState<'calendar' | 'list'>('calendar')
     console.log("balance in dashboard", balance);
     return (
-        <div>
-
+        <>
             <div className="mb-4 flex space-x-2">
                 <button
                     className={`text-sm md:textmd rounded-lg px-2 py-1 md:px-4 md:py-2 ${activeView === 'calendar' ? 'bg-accent text-black' : 'bg-transparent border border-gray-400 hover:border-accent border-accent'
@@ -35,7 +34,7 @@ export default function Dashboard({ balance }: dashboardProps) {
                 // <ListView transactions={transactions} />
                 null
             )}
-        </div>
+        </>
     )
 }
 

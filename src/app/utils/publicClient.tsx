@@ -1,6 +1,6 @@
 import { getPublicClient } from "@wagmi/core";
 import { config } from "@/app/utils/config";
-import { createWalletClient, custom } from "viem";
+// import { createWalletClient, custom } from "viem";
 
 const bittorrentchainTestnet = {
   id: 1029,
@@ -23,11 +23,11 @@ const bittorrentchainTestnet = {
 type AllowedChainIds =
   typeof bittorrentchainTestnet.id
 
-export const walletClient =
-  createWalletClient({
-    chain: bittorrentchainTestnet,
-    transport: custom(window.ethereum!),
-  })
+// export const walletClient =
+//   createWalletClient({
+//     chain: bittorrentchainTestnet,
+//     transport: custom(window.ethereum!),
+//   })
 
 // Utility function to initialize a client for a specific chain
 export const initializeClient = (chainId: AllowedChainIds) => {

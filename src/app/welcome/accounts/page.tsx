@@ -58,7 +58,7 @@ function Accounts() {
                             <Link
                                 key={index}
                                 href={`/user-home/${wallet.walletAddress}`}
-                                className="block border border-border-light rounded-lg p-4 hover:bg-[#ffffff14] cursor-pointer" >
+                                className="hidden md:block border border-border-light rounded-lg p-4 hover:bg-[#ffffff14] cursor-pointer" >
 
                                 <div className="flex items-center justify-between">
                                     <div className="flex items-center space-x-3">
@@ -106,6 +106,8 @@ function Accounts() {
                                 You don't have any Orbit Multisig Smart Wallets yet
                             </p>
                         )}
+
+                        {userWallets.length > 0 ? userWallets.map((_wallet) => (<Link href={`/user-home/${_wallet.walletAddress}`}>{_wallet.walletAddress}</Link>)) : <div>Not found</div>}
                     </div>
                 </div>
             </div>

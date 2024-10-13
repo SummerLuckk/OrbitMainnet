@@ -439,7 +439,7 @@ export default function CalendarView() {
 
 
     return (
-        <div className="h-screen py-4 bg-dark-black text-white">
+        <div className="min-h-screen py-4 bg-dark-black text-white">
             <style jsx global>{`
     .rbc-calendar {
         background-color: #1E1E1E;

@@ -1,5 +1,6 @@
 
 import dynamic from "next/dynamic";
+import { useParams } from "next/navigation";
 import React from "react";
 
 
