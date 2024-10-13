@@ -106,8 +106,6 @@ function Accounts() {
                                 You don't have any Orbit Multisig Smart Wallets yet
                             </p>
                         )}
-
-                        {userWallets.length > 0 ? userWallets.map((_wallet) => (<Link href={`/user-home/${_wallet.walletAddress}`}>{_wallet.walletAddress}</Link>)) : <div>Not found</div>}
                     </div>
                 </div>
             </div>
