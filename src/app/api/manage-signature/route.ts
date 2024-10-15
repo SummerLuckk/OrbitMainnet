@@ -1,7 +1,11 @@
 import { MongoClient } from "mongodb";
 import { NextResponse } from "next/server";
 
-export async function POST(req) {
+const MONGODB_URI = process.env.NEXT_PUBLIC_MONGODB_URI as string;
+const DB_NAME = "Orbit";
+const COLLECTION_NAME = "orbit-wallet";
+
+export async function POST(req:Request) {
   const {
     walletAddress,
     txIndex,
@@ -9,11 +13,10 @@ export async function POST(req) {
     signerAddress
   } = await req.json();
 
-  // Connect to MongoDB
-  const client = await MongoClient.connect(process.env.NEXT_PUBLIC_MONGODB_URI);
-  const db = client.db("Orbit");
-  const collection = db.collection("orbit-wallet");
 
+  const client = await MongoClient.connect(MONGODB_URI);
+  const db = client.db(DB_NAME);
+  const collection = db.collection(COLLECTION_NAME);
   try {
     // Check if the signer has already signed
     const existingSignature = await collection.findOne({
@@ -46,7 +49,7 @@ export async function POST(req) {
     return new NextResponse(
       JSON.stringify({
         message: "Error storing signature",
-        error: error.message,
+        
       }),
       { status: 500 }
     );
@@ -56,15 +59,16 @@ export async function POST(req) {
   }
 }
 
-export async function GET(req) {
+export async function GET(req:Request) {
   const { searchParams } = new URL(req.url);
   const walletAddress = searchParams.get('walletAddress');
   const txIndex = searchParams.get('txIndex');
 
-  // Connect to MongoDB
-  const client = await MongoClient.connect(process.env.NEXT_PUBLIC_MONGODB_URI);
-  const db = client.db("Orbit");
-  const collection = db.collection("orbit-wallet");
+  const client = await MongoClient.connect(MONGODB_URI);
+  const db = client.db(DB_NAME);
+  const collection = db.collection(COLLECTION_NAME);
+
+
 
   try {
     // Fetch all signatures for the given wallet address and transaction index
@@ -78,7 +82,6 @@ export async function GET(req) {
     return new NextResponse(
       JSON.stringify({
         message: "Error fetching signatures",
-        error: error.message,
       }),
       { status: 500 }
     );
