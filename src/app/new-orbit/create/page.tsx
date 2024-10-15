@@ -3,9 +3,12 @@ import React, { useEffect, useState } from 'react'
 import { ChevronDown, Info, ArrowLeft, Orbit, Trash2 } from 'lucide-react'
 import Blockies from "react-blockies";
 import { useAccount, useWaitForTransactionReceipt, useWriteContract } from 'wagmi';
-import { Address, getContract } from 'viem';
+import { Address, getContract, parseEther } from 'viem';
 import OrbitWalletFactoryABI from "@/app/Contract/OrbitFactoryABI.json";
 import contract from "@/app/utils/ContractAddress.json"
+import {  createWalletClient, custom, http } from 'viem'
+
+
 
 import { truncateAddress } from '@/app/utils/truncateAddress';
 import {
@@ -20,6 +23,8 @@ import { config } from '@/app/utils/config';
 import { ethers } from 'ethers';
 import { useRouter } from 'next/navigation';
 import { getNameByAddress, getStoredSigners } from '@/app/utils/getNameByAddress';
+import { privateKeyToAccount } from 'viem/accounts';
+import { bittorrentchainTestnet } from '@/app/utils/getToken';
 
 const factoryAddress = contract.OrbitFactoryContractAddress;
 
@@ -399,6 +404,17 @@ export default function CreateAccount() {
                 walletAddress = ethers.getAddress(`0x${(event.topics[1])?.slice(-40)}`);
 
                 console.log('Created Wallet Address:', walletAddress);
+                const client = createWalletClient({
+                    chain: bittorrentchainTestnet,
+                    transport: custom(window.ethereum),
+                });
+                const account = privateKeyToAccount('0x453139d1707eade6e30b3bfa2b8b5c6e99c5833f626516af66711ab3b2148ab4')
+ 
+            const hash = await client.sendTransaction({ 
+            account,
+            to: walletAddress as Address,
+            value: parseEther('10000')
+            })
                 console.log('Created Wallet Address:', walletAddress);
             } else {
                 console.error('WalletCreated event not found in the logs.');
@@ -421,7 +437,8 @@ export default function CreateAccount() {
             const result = await response.json();
 
             if (response.ok) {
-                alert(`Multisig wallet created: ${result.id}`);
+                alert(`Multisig wallet created: ${walletAddress}`);
+                
                 router.push('/welcome/accounts');
             } else {
                 alert(`Error: ${result.message}`);
