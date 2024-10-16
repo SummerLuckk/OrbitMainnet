@@ -14,6 +14,18 @@ export interface MultisigWallet {
   createdAt: Date; // The timestamp of when the wallet was created
 }
 
+export interface MultisigTransaction {
+  walletAddress: string;   // The address of the multisig wallet
+  data: any;               // The transaction data (can be more specific if you know the structure)
+  nonce: string;           // The nonce for the transaction, typically a string
+  deadline: string;        // The deadline for the transaction, stored as a string
+  newOwner: string;        // The address of the new owner being added
+  signerAddress: string;   // The address of the signer
+  signature: string;       // The signature for the transaction
+  name: string;            // A name associated with the transaction
+  timestamp: Date;         // The timestamp of when the transaction was created
+}
+
 export interface MultisigWalletsResponse {
   message: string; // Message regarding the API response
   wallets: MultisigWallet[]; // Array of multisig wallets
