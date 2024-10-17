@@ -1,7 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useRef, useState } from 'react';
-import { ChevronLeft, CircleCheck, Copy, CopyCheck, Home, Info, Menu, PanelLeftClose, PanelLeftOpen, PlusCircle, Settings } from 'lucide-react';
+import { ChevronLeft, CircleCheck, Copy, CopyCheck, ExternalLink, Home, Info, Menu, PanelLeftClose, PanelLeftOpen, PlusCircle, Settings } from 'lucide-react';
 import Blockies from "react-blockies";
 import Dashboard from './Dashboard';
 import NewTransaction from './NewTransaction';
@@ -171,7 +171,7 @@ export default function MainComponent() {
             >
                 <PanelLeftOpen className="h-6 w-6 text-black " />
             </Button>}
-            {/* Sidebar */}
+            {/* Desktop Sidebar */}
             <div className=" hidden md:flex w-64 bg-dark-gray flex-col h-full overflow-y-auto">
 
                 {/* Profile Section */}
@@ -190,25 +190,37 @@ export default function MainComponent() {
                                 <p className="text-xs text-gray-400" style={{ unicodeBidi: 'plaintext' }}>Balance: {balance !== null ? Number(balance).toLocaleString() : "Loading..."} <span className="font-bold">BTT</span></p>
                             </div>
 
-                            <div className="ml-4 flex justify-start gap-4">
-                                <TooltipProvider>
-                                    <Tooltip>
-                                        <TooltipTrigger>
-                                            <button className="rounded-lg bg-black text-accent p-2" onClick={() => handleCopy(walletAddress?.toString(), "profile")}>
-                                                {copyStatus['profile'] ? <CircleCheck className="h-4 w-4" /> : <Copy className="h-4 w-4" />}
-                                            </button>
-                                        </TooltipTrigger>
-                                        <TooltipContent className='bg-black text-white'>
-                                            <p>Copy Address</p>
-                                        </TooltipContent>
-                                    </Tooltip>
-                                </TooltipProvider>
 
-                            </div>
                         </div>
-                    </div>
 
-                    <button className="mt-6 mb-4 w-full rounded-lg bg-accent py-2 text-center font-semibold text-black"
+                    </div>
+                    <div className="my-4 flex items-center gap-4">
+                        <TooltipProvider>
+                            <Tooltip>
+                                <TooltipTrigger>
+                                    <button className="rounded-lg bg-black text-accent p-2" onClick={() => handleCopy(walletAddress?.toString(), "profile")}>
+                                        {copyStatus['profile'] ? <CircleCheck className="h-4 w-4" /> : <Copy className="h-4 w-4" />}
+                                    </button>
+                                </TooltipTrigger>
+                                <TooltipContent className='bg-black text-white'>
+                                    <p>Copy Address</p>
+                                </TooltipContent>
+                            </Tooltip>
+                        </TooltipProvider>
+                        <TooltipProvider>
+                            <Tooltip>
+                                <TooltipTrigger>
+                                    <Link href={`https://testnet.bttcscan.com/address/${walletAddress}`} target="_blank" className="block rounded-lg bg-black text-accent p-2">
+                                        <ExternalLink className="h-4 w-4" />
+                                    </Link>
+                                </TooltipTrigger>
+                                <TooltipContent className='bg-black text-white'>
+                                    <p>View on BTTC Scan</p>
+                                </TooltipContent>
+                            </Tooltip>
+                        </TooltipProvider>
+                    </div>
+                    <button className="mt-2 mb-4 w-full rounded-lg bg-accent py-2 text-center font-semibold text-black"
                         onClick={() => handleMenuItemClick('New Transaction')}>
                         New Transaction
                     </button>
@@ -267,7 +279,7 @@ export default function MainComponent() {
                 {renderContent()}
             </div>
 
-            {/* Overlay for mobile when sidebar is open */}
+            {/* Mobile Sidebar */}
             <div
                 className={`fixed inset-0 bg-black bg-opacity-50 z-50 md:hidden transition-opacity duration-300 ${isSidebarOpen ? 'opacity-100' : 'opacity-0 pointer-events-none'}`}
             >
@@ -305,24 +317,35 @@ export default function MainComponent() {
                                     <p className="text-xs text-gray-400">{walletAddress ? truncateAddress(walletAddress.toString()) : ""}</p>
                                     <p className="text-xs text-gray-400">Balance: {balance !== null ? balance : "Loading..."} <span className="font-bold">BTT</span></p>
                                 </div>
-                                <div className="ml-4 flex justify-start gap-4">
-                                    <TooltipProvider>
-                                        <Tooltip>
-                                            <TooltipTrigger>
-                                                <button className="rounded-lg bg-black text-accent p-2" onClick={() => handleCopy(walletAddress.toString(), "profile")}>
-                                                    {copyStatus['profile'] ? <CircleCheck className="h-4 w-4" /> : <Copy className="h-4 w-4" />}
-                                                </button>
-                                            </TooltipTrigger>
-                                            <TooltipContent className='bg-black text-white'>
-                                                <p>Copy Address</p>
-                                            </TooltipContent>
-                                        </Tooltip>
-                                    </TooltipProvider>
-                                </div>
                             </div>
                         </div>
-
-                        <button className="mt-6 mb-4 w-full rounded-lg bg-accent py-2 text-center font-semibold text-black"
+                        <div className="my-4 flex items-center gap-4">
+                            <TooltipProvider>
+                                <Tooltip>
+                                    <TooltipTrigger>
+                                        <button className="rounded-lg bg-black text-accent p-2" onClick={() => handleCopy(walletAddress?.toString(), "profile")}>
+                                            {copyStatus['profile'] ? <CircleCheck className="h-4 w-4" /> : <Copy className="h-4 w-4" />}
+                                        </button>
+                                    </TooltipTrigger>
+                                    <TooltipContent className='bg-black text-white'>
+                                        <p>Copy Address</p>
+                                    </TooltipContent>
+                                </Tooltip>
+                            </TooltipProvider>
+                            <TooltipProvider>
+                                <Tooltip>
+                                    <TooltipTrigger>
+                                        <Link href={`https://testnet.bttcscan.com/address/${walletAddress}`} target="_blank" className="block rounded-lg bg-black text-accent p-2">
+                                            <ExternalLink className="h-4 w-4" />
+                                        </Link>
+                                    </TooltipTrigger>
+                                    <TooltipContent className='bg-black text-white'>
+                                        <p>View on BTTC Scan</p>
+                                    </TooltipContent>
+                                </Tooltip>
+                            </TooltipProvider>
+                        </div>
+                        <button className="mt-2 mb-4 w-full rounded-lg bg-accent py-2 text-center font-semibold text-black"
                             onClick={() => handleMenuItemClick('New Transaction')}>
                             New Transaction
                         </button>

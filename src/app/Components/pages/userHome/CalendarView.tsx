@@ -72,7 +72,7 @@ interface Transaction {
 
 export default function CalendarView() {
     const { isMobile } = useWindowSize()
-    console.log("is Mobileeee", isMobile)
+    // console.log("is Mobileeee", isMobile)
     const params = useParams()
     const walletAddress = params.address
     const [view, setView] = useState<View>(isMobile ? 'day' : 'month');
@@ -264,7 +264,7 @@ export default function CalendarView() {
 
     const loadTokenDetails = async (tokenAddress: Address): Promise<TokenDetails | null> => {
         if (tokenAddress && address) {
-            console.log(address);
+            // console.log(address);
             const details = await getTokenDetails(tokenAddress, address);
             return details;
         }
@@ -295,14 +295,14 @@ export default function CalendarView() {
 
     const fetchSignatures = async (txIndex: number) => {
         try {
-            console.log(txIndex);
+            // console.log(txIndex);
             const response = await fetch(`/api/manage-signature?walletAddress=${walletAddress}&txIndex=${txIndex}`)
             const data = await response.json();
-            console.log("signatures", data)
+            // console.log("signatures", data)
             setSignatures(data.signatures.map((s: any) => s.signature));
             setSignerAddresses(data.signatures.map((s: any) => s.signerAddress));
             const signerAddress = data.signatures.map((s: any) => s.signerAddress);
-            console.log(signerAddress, address)
+            // console.log(signerAddress, address)
         } catch (error) {
             console.error('Error fetching signatures:', error);
         }
@@ -310,7 +310,7 @@ export default function CalendarView() {
 
     const signTransaction = async (transaction: Transaction) => {
         // ...sign transaction logic
-        console.log(transaction)
+        // console.log(transaction)
         try {
             // const client = createWalletClient({
             //     chain: bittorrentchainTestnet,
@@ -353,7 +353,7 @@ export default function CalendarView() {
                         date: BigInt(transaction.date),
                     },
                 });
-                console.log(signature);
+                // console.log(signature);
                 // Store the signature
                 await fetch('/api/manage-signature', {
                     method: 'POST',
@@ -368,7 +368,7 @@ export default function CalendarView() {
                     }),
                 });
                 // Refresh signatures
-                console.log("done")
+                // console.log("done")
                 await fetchSignatures(transaction.txIndex);
             }
         } catch (err) {
@@ -378,10 +378,10 @@ export default function CalendarView() {
 
     const executeTransaction = async (transaction: Transaction) => {
 
-        console.log(transaction);
+        // console.log(transaction);
 
         if (transaction.tokenAddress === "0x0000000000000000000000000000000000000000") {
-            console.log(signatures)
+            // console.log(signatures)
             await writeContractAsync({
                 address: walletAddress as Address,
                 abi: OrbitWalletABI,
@@ -394,7 +394,7 @@ export default function CalendarView() {
             });
         }
         else {
-            console.log(signatures)
+            // console.log(signatures)
             await writeContractAsync({
                 address: walletAddress as Address,
                 abi: OrbitWalletABI,
@@ -413,7 +413,7 @@ export default function CalendarView() {
     const getEventStyle = (event: any) => {
         const currentDate = moment();
         const eventStartDate = moment(event.start);
-        console.log(eventStartDate);
+        // console.log(eventStartDate);
 
         if (eventStartDate.isBefore(currentDate, 'day')) {
             return {

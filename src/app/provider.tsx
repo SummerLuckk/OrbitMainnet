@@ -23,15 +23,14 @@ const bittorrentchainTestnet = {
 };
 
 const queryClient = new QueryClient();
+const config = getDefaultConfig({
+    appName: "Orbit",
+    projectId: "f8a6524307e28135845a9fe5811fcaa2",
+    chains: [bittorrentchainTestnet],
+    ssr: true,
 
+});
 export default function Providers({ children }: { children: React.ReactNode }) {
-    const config = getDefaultConfig({
-        appName: "RainbowKit demo",
-        projectId: "f8a6524307e28135845a9fe5811fcaa2",
-        chains: [bittorrentchainTestnet],
-        ssr: false,
-
-    });
     return (
         <WagmiProvider config={config}>
             <QueryClientProvider client={queryClient}>

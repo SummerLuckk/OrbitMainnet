@@ -100,7 +100,7 @@ export default function NewTransaction({ date }: NewTransactionProps) {
 
             const tokenAddress = isERC20 ? newTransaction.tokenAddress : "0x0000000000000000000000000000000000000000";
             const amount = parseUnits(newTransaction.amount, isERC20 ? Number(tokenDetails?.decimals) : 18);
-
+            console.log("nonce", nonce)
             const tx = await writeContractAsync({
                 address: WalletContractAddress as Address,
                 abi: OrbitWalletABI,

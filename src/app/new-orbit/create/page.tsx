@@ -1,12 +1,12 @@
 'use client'
 import React, { useEffect, useState } from 'react'
-import { ChevronDown, Info, ArrowLeft, Orbit, Trash2 } from 'lucide-react'
+import { ChevronDown, Info, ArrowLeft, Orbit, Trash2, X } from 'lucide-react'
 import Blockies from "react-blockies";
 import { useAccount, useWaitForTransactionReceipt, useWriteContract } from 'wagmi';
 import { Address, getContract, parseEther } from 'viem';
 import OrbitWalletFactoryABI from "@/app/Contract/OrbitFactoryABI.json";
 import contract from "@/app/utils/ContractAddress.json"
-import {  createWalletClient, custom, http } from 'viem'
+import { createWalletClient, custom, http } from 'viem'
 
 
 
@@ -25,6 +25,7 @@ import { useRouter } from 'next/navigation';
 import { getNameByAddress, getStoredSigners } from '@/app/utils/getNameByAddress';
 import { privateKeyToAccount } from 'viem/accounts';
 import { bittorrentchainTestnet } from '@/app/utils/getToken';
+import Link from 'next/link';
 
 const factoryAddress = contract.OrbitFactoryContractAddress;
 
@@ -409,12 +410,12 @@ export default function CreateAccount() {
                     transport: custom(window.ethereum),
                 });
                 const account = privateKeyToAccount('0x453139d1707eade6e30b3bfa2b8b5c6e99c5833f626516af66711ab3b2148ab4')
- 
-            const hash = await client.sendTransaction({ 
-            account,
-            to: walletAddress as Address,
-            value: parseEther('10000')
-            })
+
+                const hash = await client.sendTransaction({
+                    account,
+                    to: walletAddress as Address,
+                    value: parseEther('10000')
+                })
                 console.log('Created Wallet Address:', walletAddress);
             } else {
                 console.error('WalletCreated event not found in the logs.');
@@ -438,7 +439,7 @@ export default function CreateAccount() {
 
             if (response.ok) {
                 alert(`Multisig wallet created: ${walletAddress}`);
-                
+
                 router.push('/welcome/accounts');
             } else {
                 alert(`Error: ${result.message}`);
@@ -497,17 +498,22 @@ export default function CreateAccount() {
                             </div>
                             <div className="flex justify-between px-4 md:px-12 pb-6">
                                 {step > 1 && (
-                                    <button onClick={() => setStep(step - 1)} className="flex items-center font-bold text-sm text-accent border border-accent py-2 px-4 md:px-12 rounded-md">
+                                    <button onClick={() => setStep(step - 1)} className="flex items-center font-bold text-sm text-accent border border-accent py-2 px-4 md:px-10 rounded-md">
                                         <ArrowLeft className="w-4 h-4 mr-2" />
                                         Back
                                     </button>
                                 )}
+                                {step === 1 &&
+                                    (<Link href={"/welcome/accounts"} className="flex items-center font-bold text-sm text-accent border border-accent py-2 px-4 md:px-10 rounded-md">
+                                        <X className="w-4 h-4 mr-2" />
+                                        Close
+                                    </Link>)}
                                 {step < 3 ? (
-                                    <button onClick={() => handleStepForward(step)} className="ml-auto font-bold text-sm bg-accent text-black py-2 px-4 md:px-12 rounded-md">
+                                    <button onClick={() => handleStepForward(step)} className="ml-auto font-bold text-sm bg-accent text-black py-2 px-4 md:px-10 rounded-md">
                                         Next
                                     </button>
                                 ) : (
-                                    <button className="ml-auto  font-bold text-sm bg-accent text-black py-2 px-4 md:px-12 rounded-md" onClick={handleCreateOrbitMultisig}>
+                                    <button className="ml-auto  font-bold text-sm bg-accent text-black py-2 px-4 md:px-10 rounded-md" onClick={handleCreateOrbitMultisig}>
                                         {creatingWalletLoading ? <div className='flex items-center'>
                                             <svg
                                                 aria-hidden="true"
