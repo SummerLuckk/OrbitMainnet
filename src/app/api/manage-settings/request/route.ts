@@ -15,9 +15,11 @@ export async function POST(req:Request) {
     deadline,
     newOwner,
     signerAddress, 
+    threshold,
     signature,
     name,
     status,
+    transactionType,
   } =  await req.json();
 
   // Connect to MongoDB
@@ -49,11 +51,13 @@ export async function POST(req:Request) {
         nonce,
         deadline,
         newOwner,
+        threshold,
         signerAddress:[signerAddress], 
         signature:[signature],
         name,
         timestamp: new Date(),
         status,
+        transactionType,
     });
 
     return new NextResponse(
@@ -77,6 +81,8 @@ export async function POST(req:Request) {
 export async function GET(req:Request) {
   const { searchParams } = new URL(req.url);
   const walletAddress = searchParams.get('walletAddress');
+  const transactionType = searchParams.get('transactionType');
+
 
   const client = await MongoClient.connect(MONGODB_URI);
   const db = client.db(DB_NAME);
@@ -87,7 +93,7 @@ export async function GET(req:Request) {
 
   try {
     // Fetch all signatures for the given wallet address and transaction index
-    const signatures = await collection.find({ walletAddress ,status}).toArray();
+    const signatures = await collection.find({ walletAddress ,status,transactionType}).toArray();
     
 
     return new NextResponse(
