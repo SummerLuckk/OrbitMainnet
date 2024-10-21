@@ -58,7 +58,7 @@ function Accounts() {
                             <Link
                                 key={index}
                                 href={`/user-home/${wallet.walletAddress}`}
-                                className="block border border-border-light rounded-lg p-4 hover:bg-[#ffffff14] cursor-pointer" >
+                                className="block border border-border-light rounded-lg p-4 hover:bg-[#ffffff14] cursor-pointer mb-6" >
 
                                 <div className="flex items-center justify-between">
                                     <div className="flex items-center space-x-3">

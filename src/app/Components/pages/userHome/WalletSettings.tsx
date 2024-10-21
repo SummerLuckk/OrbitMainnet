@@ -13,6 +13,7 @@ import contract from "@/app/utils/ContractAddress.json";
 import { Button } from "@/components/ui/button";
 import { bittorrentchainTestnet } from "@/app/utils/getToken";
 import { ethers, toUtf8Bytes } from "ethers";
+import WalletUpdateRequests from "./WalletUpdateRequests";
 
 const factoryAddress = contract.OrbitFactoryContractAddress;
 
@@ -22,17 +23,21 @@ export default function WalletSettings() {
     const walletAddress = params.address
     const { address } = useAccount()
     const [loading, setLoading] = useState(false);
+    const [addingNewSigner, setAddingNewSigner] = useState<boolean>(false);
+    const [thresholdUpdateLoading, setThresholdUpdateLoading] = useState<boolean>(false)
     const [error, setError] = useState('');
     const [userWallet, setUserWallet] = useState<MultisigWallet>();
- const [ownerUpdateTransaction, setOwnerUpdateTransaction] = useState<MultisigTransaction[]>([]);
- const [thresholdUpdateTransaction,setThresholdUpdateTransaction] = useState<MultisigTransaction[]>([]);
+    const [ownerUpdateTransaction, setOwnerUpdateTransaction] = useState<MultisigTransaction[]>([]);
+    const [thresholdUpdateTransaction, setThresholdUpdateTransaction] = useState<MultisigTransaction[]>([]);
+    const [errors, setErrors] = useState({
+        signers: '',
+        threshold: ''
+    });
 
-    
     const [formData, setFormData] = useState({
         signers: [{ name: '', address: "" }],
         threshold: ""
     })
-    const { writeContractAsync } = useWriteContract();
 
     useEffect(() => {
         const fetchWallets = async (wAddress: string) => {
@@ -55,7 +60,7 @@ export default function WalletSettings() {
         };
 
         // fetchOwnerAddTransactions()
-        if (params.address) { fetchWallets(params.address); fetchOwnerAddTransactions(); fetchThresholdUpdateTransactions();}
+        if (params.address) { fetchWallets(params.address); fetchOwnerAddTransactions(); }
     }, [params.address])
 
     const handleDeleteSigner = (index: number) => {
@@ -71,175 +76,62 @@ export default function WalletSettings() {
 
 
     ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-                                                //for Owner management//
+    //for Owner management//
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 
-    //function to execute owner update request
-    const addOwner = async (transaction :MultisigTransaction) => {
 
-        console.log("wallet",walletAddress)
-        console.log("nonce",transaction.nonce);
-
-        const response = await fetch(`/api/manage-settings/get-by-nonce?walletAddress=${walletAddress}&nonce=${transaction.nonce}`)
-        const data = await response.json();
-        console.log(data);
-        const signatures:any=data.signatures.signature;
-        
-        console.log(signatures);
-
-
-        try {
-            await writeContractAsync({
-                address: walletAddress as Address,
-                abi: OrbitWalletABI,
-                functionName: 'executeTransaction',
-                args: [walletAddress,0,transaction.data,transaction.deadline,transaction.nonce,signatures],
-            });
-
-
-            // to update the owners
-            await fetch('/api/manage-settings/update-owners', {
-                method: 'PUT',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify({
-                    walletAddress: walletAddress,
-                    newSigner: {
-                        address: data.signatures.newOwner,
-                        name: data.signatures.name,
-                      },
-                  
-                    
-                }),
-            });
-
-            // to update the status of this trasnaction to completed
-
-            await fetch('/api/manage-settings/request', {
-                method: 'PATCH', // Use PATCH for updating
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify({
-                    walletAddress: walletAddress,
-                    nonce: data.signatures.nonce, // Include the nonce to identify the record
-                }),
-            });
-            
-            // Reset the input after successful transaction
-            alert('New owner added successfully');
-        } catch (error) {
-            console.error('Error adding owner:', error);
-        }
-    }; 
 
     // function to fell all request  Transaction for updating owners
     const fetchOwnerAddTransactions = async () => {
         try {
-            
-            const response = await fetch(`/api/manage-settings/request?walletAddress=${walletAddress}&transactionType=owner`)
+
+            const response = await fetch(`/api/manage-settings/request?walletAddress=${walletAddress}`)
             const data = await response.json();
-            console.log(data);
+            // console.log(data);
+            console.log("signer requests :", data)
 
             setOwnerUpdateTransaction(data.signatures)
             console.log("signatures", data.signatures)
-        
+
         } catch (error) {
             console.error('Error fetching signatures:', error);
         }
     };
 
-    // function to sign Transaction for updating owners
-    const signOwnerAddTransaction = async (index:number) => {
-
-        console.log(ownerUpdateTransaction[index]);
-        const data =ownerUpdateTransaction[index];
-
-
-        try {
-            
-            if (typeof window !== undefined && window.ethereum) {
-                const client = createWalletClient({
-                    chain: bittorrentchainTestnet,
-                    transport: custom(window.ethereum),
-                });
-                const signature = await client?.signTypedData({
-                    account: address as Address,
-                    domain: {
-                        name: "OrbitWallet",
-                        version: "1",
-                        chainId: BigInt(1029),
-                        verifyingContract: walletAddress as Address,
-                    },
-                    types: {
-                        EIP712Domain: [
-                            { name: "name", type: "string" },
-                            { name: "version", type: "string" },
-                            { name: "chainId", type: "uint256" },
-                            { name: "verifyingContract", type: "address" },
-                        ],
-                        Execute: [
-                            { name: "to", type: "address" },
-                            { name: "value", type: "uint256" },
-                            { name: "data", type: "bytes" },
-                            { name: "nonce", type: "uint256" },
-                            { name: "deadline", type: "uint256" },
-                        ],
-                    },
-                    primaryType: "Execute",
-                    message: {
-                        to: walletAddress as Address,
-                        value: BigInt(0),
-                        data: data.data,
-                        nonce: BigInt(data.nonce),
-                        deadline: BigInt(data.deadline) ,
-                    },
-                });
-                console.log(signature);
-                // Store the signature
-                await fetch('/api/manage-settings/sign', {
-                    method: 'PUT',
-                    headers: {
-                        'Content-Type': 'application/json',
-                    },
-                    body: JSON.stringify({        
-                        walletAddress: walletAddress,
-                        nonce:data.nonce,
-                        signerAddress: address,
-                        signature:signature,
-                       
-                    }),
-                });
-                // Refresh signatures
-                console.log("done")
-                // await fetchSignatures(transaction.txIndex);
-            }
-        } catch (err) {
-            console.error("Error signing transaction:", err);
-        }
-    };
 
     // function to create Transaction for updating owners
     const createAndsignOwnerAddTransaction = async () => {
+        setAddingNewSigner(true)
+        try {
+            let errorMessages = { signers: '', threshold: '' };
+            // Check for minimum 2 signers with valid addresses
 
-        const abi = [
-            "function addOwner(address _address)"
-        ];
-        const iface = new ethers.Interface(abi);
+            if (!formData.signers[0].address) {
+                errorMessages.signers = "Please enter a valid signer address.";
+            }
+
+            if (errorMessages.signers) {
+                setErrors(errorMessages);
+                return; // Prevent moving to the next step if there are errors
+            }
+            // Clear any previous errors if validation passes
+            setErrors({ signers: '', threshold: '' });
+
+            const abi = [
+                "function addOwner(address _address)"
+            ];
+            const iface = new ethers.Interface(abi);
 
 
-        const addressToAdd = formData.signers[0].address;
+            const addressToAdd = formData.signers[0].address;
 
-       const calldata = iface.encodeFunctionData("addOwner", [addressToAdd]) as `0x${string}`;
-       const timestamp = new Date().getTime().toString();
+            const calldata = iface.encodeFunctionData("addOwner", [addressToAdd]) as `0x${string}`;
+            const timestamp = new Date().getTime().toString();
             const combined = toUtf8Bytes(`${address}-${timestamp}`);
             const nonce = keccak256(combined);
-            const deadline: bigint = BigInt(Date.now() + 24 * 60 * 60 * 1000); 
+            const deadline: bigint = BigInt(Date.now() + 24 * 60 * 60 * 1000);
 
-        try {
-            
             if (typeof window !== undefined && window.ethereum) {
                 const client = createWalletClient({
                     chain: bittorrentchainTestnet,
@@ -277,7 +169,7 @@ export default function WalletSettings() {
                         deadline: deadline,
                     },
                 });
-                console.log(signature);
+                // console.log(signature);
                 // Store the signature
                 await fetch('/api/manage-settings/request', {
                     method: 'POST',
@@ -286,16 +178,16 @@ export default function WalletSettings() {
                     },
                     body: JSON.stringify({
                         walletAddress: walletAddress,
-                        data:calldata,
-                        nonce:nonce,
-                        deadline:deadline.toString(),
+                        data: calldata,
+                        nonce: nonce,
+                        deadline: deadline.toString(),
                         threshold: 0,
-                        newOwner:addressToAdd,
+                        newOwner: addressToAdd,
                         name: formData.signers[0].name,
                         signerAddress: address,
-                        signature:signature,
-                        status:"active",
-                        transactionType:"owner"
+                        signature: signature,
+                        status: "active",
+                        transactionType: "owner"
                     }),
                 });
                 // Refresh signatures
@@ -305,16 +197,19 @@ export default function WalletSettings() {
         } catch (err) {
             console.error("Error signing transaction:", err);
         }
+        finally {
+            setAddingNewSigner(false)
+        }
     };
 
 
 
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-                                                //for threshold management//
+    //for threshold management//
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
     const createAndsignThresholdTransaction = async () => {
-
+        setThresholdUpdateLoading(true)
 
         const abi = [
             "function changeThreshold(uint256 _value)"
@@ -324,14 +219,14 @@ export default function WalletSettings() {
 
         const threshold = formData.threshold;
 
-       const calldata = iface.encodeFunctionData("changeThreshold", [threshold]) as `0x${string}`;
-       const timestamp = new Date().getTime().toString();
-            const combined = toUtf8Bytes(`${address}-${timestamp}`);
-            const nonce = keccak256(combined);
-            const deadline: bigint = BigInt(Date.now() + 24 * 60 * 60 * 1000); 
+        const calldata = iface.encodeFunctionData("changeThreshold", [threshold]) as `0x${string}`;
+        const timestamp = new Date().getTime().toString();
+        const combined = toUtf8Bytes(`${address}-${timestamp}`);
+        const nonce = keccak256(combined);
+        const deadline: bigint = BigInt(Date.now() + 24 * 60 * 60 * 1000);
 
         try {
-            
+
             if (typeof window !== undefined && window.ethereum) {
                 const client = createWalletClient({
                     chain: bittorrentchainTestnet,
@@ -369,7 +264,7 @@ export default function WalletSettings() {
                         deadline: deadline,
                     },
                 });
-                console.log(signature);
+                // console.log(signature);
                 // Store the signature
                 await fetch('/api/manage-settings/request', {
                     method: 'POST',
@@ -378,16 +273,16 @@ export default function WalletSettings() {
                     },
                     body: JSON.stringify({
                         walletAddress: walletAddress,
-                        data:calldata,
-                        nonce:nonce,
-                        deadline:deadline.toString(),
+                        data: calldata,
+                        nonce: nonce,
+                        deadline: deadline.toString(),
                         threshold: threshold,
-                        newOwner:"",
+                        newOwner: "",
                         name: "",
                         signerAddress: address,
-                        signature:signature,
-                        status:"active",
-                        transactionType:"threshold"
+                        signature: signature,
+                        status: "active",
+                        transactionType: "threshold"
                     }),
                 });
                 // Refresh signatures
@@ -397,154 +292,23 @@ export default function WalletSettings() {
         } catch (err) {
             console.error("Error signing transaction:", err);
         }
-    };
-
-      // function to sign Transaction for updating owners
-      const signThresholdTransaction = async (index:number) => {
-
-        console.log(thresholdUpdateTransaction[index]);
-        const data =thresholdUpdateTransaction[index];
-
-
-        try {
-            
-            if (typeof window !== undefined && window.ethereum) {
-                const client = createWalletClient({
-                    chain: bittorrentchainTestnet,
-                    transport: custom(window.ethereum),
-                });
-                const signature = await client?.signTypedData({
-                    account: address as Address,
-                    domain: {
-                        name: "OrbitWallet",
-                        version: "1",
-                        chainId: BigInt(1029),
-                        verifyingContract: walletAddress as Address,
-                    },
-                    types: {
-                        EIP712Domain: [
-                            { name: "name", type: "string" },
-                            { name: "version", type: "string" },
-                            { name: "chainId", type: "uint256" },
-                            { name: "verifyingContract", type: "address" },
-                        ],
-                        Execute: [
-                            { name: "to", type: "address" },
-                            { name: "value", type: "uint256" },
-                            { name: "data", type: "bytes" },
-                            { name: "nonce", type: "uint256" },
-                            { name: "deadline", type: "uint256" },
-                        ],
-                    },
-                    primaryType: "Execute",
-                    message: {
-                        to: walletAddress as Address,
-                        value: BigInt(0),
-                        data: data.data,
-                        nonce: BigInt(data.nonce),
-                        deadline: BigInt(data.deadline) ,
-                    },
-                });
-                console.log(signature);
-                // Store the signature
-                await fetch('/api/manage-settings/sign', {
-                    method: 'PUT',
-                    headers: {
-                        'Content-Type': 'application/json',
-                    },
-                    body: JSON.stringify({        
-                        walletAddress: walletAddress,
-                        nonce:data.nonce,
-                        signerAddress: address,
-                        signature:signature,
-                       
-                    }),
-                });
-                // Refresh signatures
-                console.log("done")
-                // await fetchSignatures(transaction.txIndex);
-            }
-        } catch (err) {
-            console.error("Error signing transaction:", err);
-        }
-    };
-
-     // function to fetch all request  Transaction for updating owners
-     const fetchThresholdUpdateTransactions = async () => {
-        try {
-            
-            const response = await fetch(`/api/manage-settings/request?walletAddress=${walletAddress}&transactionType=threshold`)
-            const data = await response.json();
-            console.log(data);
-
-            setThresholdUpdateTransaction(data.signatures)
-            console.log("signatures", data.signatures)
-        
-        } catch (error) {
-            console.error('Error fetching signatures:', error);
+        finally {
+            setThresholdUpdateLoading(false)
         }
     };
 
 
-
-    // Function to update the threshold
-    const updateThreshold = async (transaction :MultisigTransaction) => {
-        console.log("wallet",walletAddress)
-        console.log("nonce",transaction.nonce);
-
-        const response = await fetch(`/api/manage-settings/get-by-nonce?walletAddress=${walletAddress}&nonce=${transaction.nonce}`)
-        const data = await response.json();
-        console.log(data);
-        const signatures:any=data.signatures.signature;
-        
-        console.log(signatures);
-
-
-        try {
-            await writeContractAsync({
-                address: walletAddress as Address,
-                abi: OrbitWalletABI,
-                functionName: 'executeTransaction',
-                args: [walletAddress,0,transaction.data,transaction.deadline,transaction.nonce,signatures],
-            });
-
-
-            // to update the threshold
-            await fetch('/api/manage-settings/update-threshold', {
-                method: 'PUT',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify({
-                    walletAddress: walletAddress,
-                    requiredSignatures: transaction.threshold
-                        
-                }),
-            });
-
-            // to update the status of this trasnaction to completed
-
-            await fetch('/api/manage-settings/request', {
-                method: 'PATCH', // Use PATCH for updating
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify({
-                    walletAddress: walletAddress,
-                    nonce: data.signatures.nonce, // Include the nonce to identify the record
-                }),
-            });
-            
-            // Reset the input after successful transaction
-            alert('Threshold updated successfully');
-        } catch (error) {
-            console.error('Error adding owner:', error);
-        }
-    };
 
 
     return (<>
         <div className="flex flex-col gap-10">
+
+            {ownerUpdateTransaction &&
+                ownerUpdateTransaction.length > 0 ?
+                <WalletUpdateRequests transactions={ownerUpdateTransaction} userWallet={userWallet} />
+                : null}
+
+            {/* update signer */}
             <div className="bg-dark-gray  rounded-lg overflow-hidden ">
                 <div className="flex">
                     <div className="h-1 flex-1 bg-accent"></div>
@@ -572,44 +336,6 @@ export default function WalletSettings() {
                                     </div>)
                             }) : null}
                         </div>
-
-                       {ownerUpdateTransaction && ownerUpdateTransaction.length > 0?(
-                        <div>
-                        <h1 className="text-2xl font-semibold border-b border-border-light pb-4">Member Addtion Requested</h1>
-
-                        <div className='flex flex-col space-y-4 pb-8 border-b border-border-light'>
-                            {ownerUpdateTransaction && ownerUpdateTransaction.length > 0? ownerUpdateTransaction.map((signer,i) => {
-                                
-                                return (
-                                    <div className='flex items-center gap-2'>
-                                        
-                                        <Blockies
-                                            className="table-user-gradient rounded-full"
-                                            seed={signer?.newOwner}
-                                            size={10}
-                                            scale={4}
-
-                                        />
-                                        
-                                        <div className="flex flex-col">
-                                            <span className="break-all">{signer?.name}</span>
-                                            <span className="break-all">{signer?.newOwner}</span>
-                                        </div>
-                                        {!signer.signerAddress.includes(address as Address) ? (
-    <Button className="bg-accent text-black font-bold" onClick={() => signOwnerAddTransaction(i)}>Sign</Button>
-) : (
-    <span>Already signed</span>
-)}
-
-                                        <Button className="bg-accent text-black font-bold" onClick={() => addOwner(signer)}>Execute</Button>
-                                        Signed by :  {signer?.signerAddress.length}
-
-                                    </div>)
-                            }) : null}
-                        </div>
-                       </div>):null} 
-
-
                         <div className='p-6 border-b border-border-light px-0'>
                             <div className="space-y-8">
                                 {formData.signers.length > 0 && formData.signers.map((signer, index) => (
@@ -662,19 +388,38 @@ export default function WalletSettings() {
                                             </button>}
                                     </div>
                                 ))}
+                                {errors.signers && (
+                                    <p className="text-red-500 text-sm">* {errors.signers}</p>
+                                )}
                                 {/* <button onClick={handleAddSigner} className="text-accent">+ Add new signer input</button> */}
                             </div>
-                            
+
                         </div>
                         <div className="py-4 text-right">
-                            <Button className="bg-accent text-black font-bold" onClick={createAndsignOwnerAddTransaction}>Create New Request</Button>
-                   
+                            {addingNewSigner ? <button className="ml-auto  font-bold text-sm bg-accent text-black py-2 px-4 md:px-10 rounded-md">
+                                <div className='flex items-center'>
+                                    <svg
+                                        aria-hidden="true"
+                                        role="status"
+                                        className="inline w-4 h-4 me-3 text-black animate-spin"
+                                        viewBox="0 0 100 101"
+                                        fill="none"
+                                        xmlns="http://www.w3.org/2000/svg">
+                                        <path d="M100 50.5908C100 78.2051 77.6142 100.591 50 100.591C22.3858 100.591 0 78.2051 0 50.5908C0 22.9766 22.3858 0.59082 50 0.59082C77.6142 0.59082 100 22.9766 100 50.5908ZM9.08144 50.5908C9.08144 73.1895 27.4013 91.5094 50 91.5094C72.5987 91.5094 90.9186 73.1895 90.9186 50.5908C90.9186 27.9921 72.5987 9.67226 50 9.67226C27.4013 9.67226 9.08144 27.9921 9.08144 50.5908Z" fill="#E5E7EB" />
+                                        <path d="M93.9676 39.0409C96.393 38.4038 97.8624 35.9116 97.0079 33.5539C95.2932 28.8227 92.871 24.3692 89.8167 20.348C85.8452 15.1192 80.8826 10.7238 75.2124 7.41289C69.5422 4.10194 63.2754 1.94025 56.7698 1.05124C51.7666 0.367541 46.6976 0.446843 41.7345 1.27873C39.2613 1.69328 37.813 4.19778 38.4501 6.62326C39.0873 9.04874 41.5694 10.4717 44.0505 10.1071C47.8511 9.54855 51.7191 9.52689 55.5402 10.0491C60.8642 10.7766 65.9928 12.5457 70.6331 15.2552C75.2735 17.9648 79.3347 21.5619 82.5849 25.841C84.9175 28.9121 86.7997 32.2913 88.1811 35.8758C89.083 38.2158 91.5421 39.6781 93.9676 39.0409Z" fill="currentColor" />
+                                    </svg>
+
+                                    Creating... </div>
+                            </button> :
+                                <Button className="bg-accent text-black font-bold hover:bg-accent" onClick={createAndsignOwnerAddTransaction}>Create New Request</Button>
+                            }
 
                         </div>
                     </div>
                 </div>
             </div>
 
+            {/* update threshold */}
             <div className="bg-dark-gray  rounded-lg overflow-hidden ">
                 <div className="flex">
                     <div className="h-1 flex-1 bg-accent"></div>
@@ -702,49 +447,32 @@ export default function WalletSettings() {
                             />
                         </div>
 
-                       
+
 
                     </div>
-                    {thresholdUpdateTransaction && thresholdUpdateTransaction.length > 0?(
-                        <div>
-                        <h1 className="text-2xl font-semibold border-b border-border-light pb-4">Threshold Update Requested</h1>
-
-                        <div className='flex flex-col space-y-4 pb-8 border-b border-border-light'>
-                        {thresholdUpdateTransaction && thresholdUpdateTransaction.length > 0? thresholdUpdateTransaction.map((signer,i) => {
-                            
-                            return (
-                                <div className='flex items-center gap-2'>
-                                    
-                                    <Blockies
-                                        className="table-user-gradient rounded-full"
-                                        seed={signer?.threshold.toString()}
-                                        size={10}
-                                        scale={4}
-
-                                    />
-                                    
-                                    <div className="flex flex-col">
-                                        <span className="break-all">New Threshold: {signer?.threshold}</span>
-                                       
-                                    </div>
-                                    {!signer.signerAddress.includes(address as Address) ? (
-                        <Button className="bg-accent text-black font-bold" onClick={() => signThresholdTransaction(i)}>Sign</Button>
-                        ) : (
-                        <span>Already signed</span>
-                        )}
-
-                                    <Button className="bg-accent text-black font-bold" onClick={() => updateThreshold(signer)}>Execute</Button>
-                                    Signed by :  {signer?.signerAddress.length}
-
-                                </div>)
-                        }) : null}
-                        </div>
-                        </div>):null} 
                     <div className="py-4 text-right">
-                            <Button className="bg-accent text-black font-bold" onClick={createAndsignThresholdTransaction}>Create New Request</Button>
-                   
 
-                        </div>
+                        {thresholdUpdateLoading ? <button className="ml-auto  font-bold text-sm bg-accent text-black py-2 px-4 md:px-10 rounded-md">
+                            <div className='flex items-center'>
+                                <svg
+                                    aria-hidden="true"
+                                    role="status"
+                                    className="inline w-4 h-4 me-3 text-black animate-spin"
+                                    viewBox="0 0 100 101"
+                                    fill="none"
+                                    xmlns="http://www.w3.org/2000/svg">
+                                    <path d="M100 50.5908C100 78.2051 77.6142 100.591 50 100.591C22.3858 100.591 0 78.2051 0 50.5908C0 22.9766 22.3858 0.59082 50 0.59082C77.6142 0.59082 100 22.9766 100 50.5908ZM9.08144 50.5908C9.08144 73.1895 27.4013 91.5094 50 91.5094C72.5987 91.5094 90.9186 73.1895 90.9186 50.5908C90.9186 27.9921 72.5987 9.67226 50 9.67226C27.4013 9.67226 9.08144 27.9921 9.08144 50.5908Z" fill="#E5E7EB" />
+                                    <path d="M93.9676 39.0409C96.393 38.4038 97.8624 35.9116 97.0079 33.5539C95.2932 28.8227 92.871 24.3692 89.8167 20.348C85.8452 15.1192 80.8826 10.7238 75.2124 7.41289C69.5422 4.10194 63.2754 1.94025 56.7698 1.05124C51.7666 0.367541 46.6976 0.446843 41.7345 1.27873C39.2613 1.69328 37.813 4.19778 38.4501 6.62326C39.0873 9.04874 41.5694 10.4717 44.0505 10.1071C47.8511 9.54855 51.7191 9.52689 55.5402 10.0491C60.8642 10.7766 65.9928 12.5457 70.6331 15.2552C75.2735 17.9648 79.3347 21.5619 82.5849 25.841C84.9175 28.9121 86.7997 32.2913 88.1811 35.8758C89.083 38.2158 91.5421 39.6781 93.9676 39.0409Z" fill="currentColor" />
+                                </svg>
+
+                                Creating... </div>
+                        </button> :
+                            <Button className="bg-accent text-black font-bold hover:bg-accent" onClick={createAndsignThresholdTransaction}>Create New Request</Button>
+                        }
+
+
+
+                    </div>
                 </div>
             </div>
         </div>

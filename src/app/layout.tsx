@@ -7,7 +7,6 @@ import { Metadata } from 'next';
 import dynamic from 'next/dynamic';
 import Navbar from './Components/Navbar';
 
-
 const dm_sans = DM_Sans({
   weight: ["400", "600", "700"],
   style: ["normal"],
@@ -25,6 +24,8 @@ export const metadata: Metadata = {
   description: "Keeping Financial Matters in Motion",
 };
 const Providers = dynamic(() => import("@/app/provider"), { ssr: false })
+const ProgressProvider = dynamic(() => import("@/app/progressProvider"), { ssr: false })
+
 
 export default function RootLayout({ children }: RootLayoutProps) {
   return (
@@ -33,10 +34,12 @@ export default function RootLayout({ children }: RootLayoutProps) {
         <title></title>
       </head>
       <body>
-        <Providers>
-          <Navbar />
-          {children}
-        </Providers>
+        <ProgressProvider>
+          <Providers>
+            <Navbar />
+            {children}
+          </Providers>
+        </ProgressProvider>
       </body>
     </html>
   );

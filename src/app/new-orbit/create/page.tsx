@@ -8,8 +8,6 @@ import OrbitWalletFactoryABI from "@/app/Contract/OrbitFactoryABI.json";
 import contract from "@/app/utils/ContractAddress.json"
 import { createWalletClient, custom, http } from 'viem'
 
-
-
 import { truncateAddress } from '@/app/utils/truncateAddress';
 import {
     Select,
@@ -336,7 +334,7 @@ export default function CreateAccount() {
                             <div className="flex flex-col md:flex-row justify-start">
                                 <span className="text-gray-400 w-full md:w-1/4 mb-6 md:mb-0">Est. network fee</span>
                                 <div className='flex flex-col'>
-                                    <span className='bg-accent-light p-2 font-bold text-white rounded-lg max-w-max'>≈ 0.0728 {formData.network}</span>
+                                    <span className='bg-accent-light p-2 font-bold text-white rounded-lg max-w-max'>≈ 1068 {formData.network}</span>
                                     <p className='text-gray-500 mt-4 text-sm'>You will have to confirm a transaction with your connected wallet.</p>
                                 </div>
                             </div>

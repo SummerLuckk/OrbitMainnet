@@ -1,29 +1,26 @@
 import { MongoClient } from "mongodb";
 import { NextResponse } from "next/server";
 
-
-
 const MONGODB_URI = process.env.NEXT_PUBLIC_MONGODB_URI as string;
-  const DB_NAME = "Orbit";
-  const COLLECTION_NAME = "wallet-settings";
+const DB_NAME = "Orbit";
+const COLLECTION_NAME = "wallet-settings";
 
-export async function POST(req:Request) {
+export async function POST(req: Request) {
   const {
     walletAddress,
     data,
     nonce,
     deadline,
     newOwner,
-    signerAddress, 
+    signerAddress,
     threshold,
     signature,
     name,
     status,
     transactionType,
-  } =  await req.json();
+  } = await req.json();
 
   // Connect to MongoDB
-  
 
   const client = await MongoClient.connect(MONGODB_URI);
   const db = client.db(DB_NAME);
@@ -34,41 +31,45 @@ export async function POST(req:Request) {
     const existingSignature = await collection.findOne({
       nonce,
       walletAddress,
-      signerAddress
+      signerAddress,
     });
 
     if (existingSignature) {
       return new NextResponse(
-        JSON.stringify({ message: "This address has already signed the transaction" }),
+        JSON.stringify({
+          message: "This address has already signed the transaction",
+        }),
         { status: 400 }
       );
     }
 
     // Store the new signature
     const result = await collection.insertOne({
-        walletAddress,
-        data,
-        nonce,
-        deadline,
-        newOwner,
-        threshold,
-        signerAddress:[signerAddress], 
-        signature:[signature],
-        name,
-        timestamp: new Date(),
-        status,
-        transactionType,
+      walletAddress,
+      data,
+      nonce,
+      deadline,
+      newOwner,
+      threshold,
+      signerAddress: [signerAddress],
+      signature: [signature],
+      name,
+      timestamp: new Date(),
+      status,
+      transactionType,
     });
 
     return new NextResponse(
-      JSON.stringify({ message: "Signature stored successfully", id: result.insertedId }),
+      JSON.stringify({
+        message: "Signature stored successfully",
+        id: result.insertedId,
+      }),
       { status: 200 }
     );
   } catch (error) {
     return new NextResponse(
       JSON.stringify({
         message: "Error storing signature",
-       
       }),
       { status: 500 }
     );
@@ -78,33 +79,28 @@ export async function POST(req:Request) {
   }
 }
 
-export async function GET(req:Request) {
+export async function GET(req: Request) {
   const { searchParams } = new URL(req.url);
-  const walletAddress = searchParams.get('walletAddress');
-  const transactionType = searchParams.get('transactionType');
-
+  const walletAddress = searchParams.get("walletAddress");
+  // const transactionType = searchParams.get('transactionType');
 
   const client = await MongoClient.connect(MONGODB_URI);
   const db = client.db(DB_NAME);
   const collection = db.collection(COLLECTION_NAME);
-  const status="active";
-
-
+  const status = "active";
 
   try {
     // Fetch all signatures for the given wallet address and transaction index
-    const signatures = await collection.find({ walletAddress ,status,transactionType}).toArray();
-    
+    // const signatures = await collection.find({ walletAddress ,status,transactionType}).toArray();
+    const signatures = await collection
+      .find({ walletAddress, status })
+      .toArray();
 
-    return new NextResponse(
-      JSON.stringify({ signatures }),
-      { status: 200 }
-    );
+    return new NextResponse(JSON.stringify({ signatures }), { status: 200 });
   } catch (error) {
     return new NextResponse(
       JSON.stringify({
         message: "Error fetching signatures",
-       
       }),
       { status: 500 }
     );
@@ -114,15 +110,10 @@ export async function GET(req:Request) {
   }
 }
 
-
 export async function PATCH(req: Request) {
   const { searchParams } = new URL(req.url);
-  
-  const {
-    walletAddress,
-    nonce,
-   
-  } =  await req.json();
+
+  const { walletAddress, nonce } = await req.json();
 
   // Connect to MongoDB
   const client = await MongoClient.connect(MONGODB_URI);
@@ -131,14 +122,13 @@ export async function PATCH(req: Request) {
 
   try {
     // Check if the record exists
-    console.log(walletAddress)
+    console.log(walletAddress);
     const existingRecord = await collection.findOne({ walletAddress, nonce });
-    
+
     if (!existingRecord) {
-      return new NextResponse(
-        JSON.stringify({ message: "Record not found" }),
-        { status: 404 }
-      );
+      return new NextResponse(JSON.stringify({ message: "Record not found" }), {
+        status: 404,
+      });
     }
 
     // Update the status to "completed"
@@ -148,7 +138,10 @@ export async function PATCH(req: Request) {
     );
 
     return new NextResponse(
-      JSON.stringify({ message: "Status updated to completed", modifiedCount: result.modifiedCount }),
+      JSON.stringify({
+        message: "Status updated to completed",
+        modifiedCount: result.modifiedCount,
+      }),
       { status: 200 }
     );
   } catch (error) {
