@@ -389,8 +389,7 @@ export default function CalendarView() {
                 args: [
                     transaction.txIndex,
                     signatures
-                ],
-                value: transaction.amt
+                ]
             });
         }
         else {
