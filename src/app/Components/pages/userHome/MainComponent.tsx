@@ -14,22 +14,22 @@ import { Button } from '@/components/ui/button';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 
 
-const bittorrentchainTestnet = {
-    id: 1029,
-    name: "BitTorrent Chain Donau",
+const bittorrentchainMainnet = {
+    id: 199,
+    name: "BitTorrent Chain",
     nativeCurrency: {
         decimals: 18,
-        name: "BitTorrent Chain Donau",
+        name: "BitTorrent Chain",
         symbol: "BTT",
     },
     rpcUrls: {
-        default: { http: ["https://pre-rpc.bittorrentchain.io/"] },
+        default: { http: ["https://rpc.bt.io/"] },
     },
 };
 
 const publicClient = createPublicClient({
-    chain: bittorrentchainTestnet,
-    transport: http("https://pre-rpc.bittorrentchain.io/"),
+    chain: bittorrentchainMainnet,
+    transport: http("https://rpc.bt.io/"),
 });
 
 type MenuItem = 'Dashboard' | 'New Transaction' | 'Settings';
@@ -210,7 +210,7 @@ export default function MainComponent() {
                         <TooltipProvider>
                             <Tooltip>
                                 <TooltipTrigger>
-                                    <Link href={`https://testnet.bttcscan.com/address/${walletAddress}`} target="_blank" className="block rounded-lg bg-black text-accent p-2">
+                                    <Link href={`https://bttcscan.com/address/${walletAddress}`} target="_blank" className="block rounded-lg bg-black text-accent p-2">
                                         <ExternalLink className="h-4 w-4" />
                                     </Link>
                                 </TooltipTrigger>
@@ -335,7 +335,7 @@ export default function MainComponent() {
                             <TooltipProvider>
                                 <Tooltip>
                                     <TooltipTrigger>
-                                        <Link href={`https://testnet.bttcscan.com/address/${walletAddress}`} target="_blank" className="block rounded-lg bg-black text-accent p-2">
+                                        <Link href={`https://bttcscan.com/address/${walletAddress}`} target="_blank" className="block rounded-lg bg-black text-accent p-2">
                                             <ExternalLink className="h-4 w-4" />
                                         </Link>
                                     </TooltipTrigger>

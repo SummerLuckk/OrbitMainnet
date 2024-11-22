@@ -8,7 +8,7 @@ import { Button } from "@/components/ui/button"
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter } from "@/components/ui/dialog"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
-import { ChevronLeft, ChevronRight, Clock, DollarSign, User } from 'lucide-react'
+import { ChevronLeft, ChevronRight, Clock, CloudCog, DollarSign, User } from 'lucide-react'
 import {
     Select,
     SelectContent,
@@ -23,7 +23,7 @@ import { useParams } from 'next/navigation'
 import { Address, Client, createWalletClient, custom, formatUnits, getContract, http } from 'viem'
 import { initializeClient } from '@/app/utils/publicClient'
 import { config } from '@/app/utils/config'
-import { bittorrentchainTestnet, getTokenDetails } from '@/app/utils/getToken'
+import { bittorrentchainMainnet, getTokenDetails } from '@/app/utils/getToken'
 import { TokenDetails } from '@/app/types/types'
 import { useWindowSize } from '@/hooks/useWindowSize'
 
@@ -184,6 +184,7 @@ export default function CalendarView() {
     //         fetchTransactionsFromApi();
     // }, [address, walletAddress]);
     const chainId = getChainId(config);
+    console.log(chainId);
     const client = initializeClient(chainId);
 
     const getWalletTransactions = async (walletAddress: Address) => {
@@ -193,6 +194,7 @@ export default function CalendarView() {
             client: client as Client,
         });
 
+        console.log(walletAddress)
         try {
             const transactionsData: Transaction[] | unknown = await walletContract.read.getAllTransactions();
             console.log(transactionsData)
@@ -313,12 +315,12 @@ export default function CalendarView() {
         // console.log(transaction)
         try {
             // const client = createWalletClient({
-            //     chain: bittorrentchainTestnet,
-            //     transport: http("https://pre-rpc.bittorrentchain.io/"),
+            //     chain: bittorrentchainMainnet,
+            //     transport: http("https://rpc.bt.io/"),
             // });
             if (typeof window !== undefined && window.ethereum) {
                 const client = createWalletClient({
-                    chain: bittorrentchainTestnet,
+                    chain: bittorrentchainMainnet,
                     transport: custom(window.ethereum),
                 });
                 const signature = await client?.signTypedData({
@@ -326,7 +328,7 @@ export default function CalendarView() {
                     domain: {
                         name: "OrbitWallet",
                         version: "1",
-                        chainId: BigInt(1029),
+                        chainId: BigInt(199),
                         verifyingContract: walletAddress as Address,
                     },
                     types: {
@@ -379,6 +381,8 @@ export default function CalendarView() {
     const executeTransaction = async (transaction: Transaction) => {
 
         // console.log(transaction);
+        console.log(transaction);
+        console.log(signatures);
 
         if (transaction.tokenAddress === "0x0000000000000000000000000000000000000000") {
             // console.log(signatures)

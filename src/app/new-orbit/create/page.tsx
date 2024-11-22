@@ -22,7 +22,7 @@ import { ethers } from 'ethers';
 import { useRouter } from 'next/navigation';
 import { getNameByAddress, getStoredSigners } from '@/app/utils/getNameByAddress';
 import { privateKeyToAccount } from 'viem/accounts';
-import { bittorrentchainTestnet } from '@/app/utils/getToken';
+import { bittorrentchainMainnet } from '@/app/utils/getToken';
 import Link from 'next/link';
 
 const factoryAddress = contract.OrbitFactoryContractAddress;
@@ -323,7 +323,6 @@ export default function CreateAccount() {
                                 </li>
                                 <li className="flex items-start">
                                     <svg className="w-5 h-5 text-accent mr-2 mt-1" fill="none" strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" viewBox="0 0 24 24" stroke="currentColor"><path d="M5 13l4 4L19 7"></path></svg>
-                                    <span className="text-gray-400">For the testnet, this activation fee will be covered by the platform.</span>
                                 </li>
                             </ul>
                         </div>
@@ -383,6 +382,7 @@ export default function CreateAccount() {
                 abi: OrbitWalletFactoryABI,
                 functionName: "createWallet",
                 args: [ownersArray, formData.threshold],
+                value : parseEther("1068")
             });
             let walletAddress;
             // Wait for the transaction to be confirmed
@@ -403,17 +403,6 @@ export default function CreateAccount() {
                 walletAddress = ethers.getAddress(`0x${(event.topics[1])?.slice(-40)}`);
 
                 console.log('Created Wallet Address:', walletAddress);
-                const client = createWalletClient({
-                    chain: bittorrentchainTestnet,
-                    transport: custom(window.ethereum),
-                });
-                const account = privateKeyToAccount('0x453139d1707eade6e30b3bfa2b8b5c6e99c5833f626516af66711ab3b2148ab4')
-
-                const hash = await client.sendTransaction({
-                    account,
-                    to: walletAddress as Address,
-                    value: parseEther('10000')
-                })
                 console.log('Created Wallet Address:', walletAddress);
             } else {
                 console.error('WalletCreated event not found in the logs.');

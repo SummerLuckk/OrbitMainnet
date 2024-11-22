@@ -5,28 +5,28 @@ import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { WagmiProvider } from 'wagmi';
 import { darkTheme, getDefaultConfig, RainbowKitProvider } from '@rainbow-me/rainbowkit';
 
-const bittorrentchainTestnet = {
-    id: 1029,
-    name: "BitTorrent Chain Donau",
+const bittorrentchainMainnet = {
+    id: 199,
+    name: "BitTorrent Chain",
     nativeCurrency: {
         decimals: 18,
-        name: "BitTorrent Chain Donau",
+        name: "BitTorrent Chain",
         symbol: "BTT",
     },
     rpcUrls: {
-        default: { http: ["https://pre-rpc.bittorrentchain.io/"] },
+        default: { http: ["https://rpc.bt.io/"] },
     },
     blockExplorers: {
-        default: { name: "schedule-transactions scan", url: "https://testscan.bittorrentchain.io/" },
+        default: { name: "schedule-transactions scan", url: "https://bttcscan.com/" },
     },
-    testnet: true,
+    testnet: false,
 };
 
 const queryClient = new QueryClient();
 const config = getDefaultConfig({
     appName: "Orbit",
     projectId: "f8a6524307e28135845a9fe5811fcaa2",
-    chains: [bittorrentchainTestnet],
+    chains: [bittorrentchainMainnet],
     ssr: true,
 
 });

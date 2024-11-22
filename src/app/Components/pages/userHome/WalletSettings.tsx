@@ -11,7 +11,7 @@ import { config } from "@/app/utils/config";
 import OrbitWalletABI from "@/app/Contract/OrbitABI.json";
 import contract from "@/app/utils/ContractAddress.json";
 import { Button } from "@/components/ui/button";
-import { bittorrentchainTestnet } from "@/app/utils/getToken";
+import { bittorrentchainMainnet } from "@/app/utils/getToken";
 import { ethers, toUtf8Bytes } from "ethers";
 import WalletUpdateRequests from "./WalletUpdateRequests";
 
@@ -134,7 +134,7 @@ export default function WalletSettings() {
 
             if (typeof window !== undefined && window.ethereum) {
                 const client = createWalletClient({
-                    chain: bittorrentchainTestnet,
+                    chain: bittorrentchainMainnet,
                     transport: custom(window.ethereum),
                 });
                 const signature = await client?.signTypedData({
@@ -142,7 +142,7 @@ export default function WalletSettings() {
                     domain: {
                         name: "OrbitWallet",
                         version: "1",
-                        chainId: BigInt(1029),
+                        chainId: BigInt(199),
                         verifyingContract: walletAddress as Address,
                     },
                     types: {
@@ -229,7 +229,7 @@ export default function WalletSettings() {
 
             if (typeof window !== undefined && window.ethereum) {
                 const client = createWalletClient({
-                    chain: bittorrentchainTestnet,
+                    chain: bittorrentchainMainnet,
                     transport: custom(window.ethereum),
                 });
                 const signature = await client?.signTypedData({
@@ -237,7 +237,7 @@ export default function WalletSettings() {
                     domain: {
                         name: "OrbitWallet",
                         version: "1",
-                        chainId: BigInt(1029),
+                        chainId: BigInt(199),
                         verifyingContract: walletAddress as Address,
                     },
                     types: {

@@ -11,7 +11,7 @@ import { truncateAddress } from "@/app/utils/truncateAddress"
 import { Address, createWalletClient, custom } from "viem"
 import { AlertCircle, CheckCircle2, Clock } from "lucide-react"
 import { useAccount, useWriteContract } from "wagmi"
-import { bittorrentchainTestnet } from "@/app/utils/getToken"
+import { bittorrentchainMainnet } from "@/app/utils/getToken"
 import OrbitWalletABI from "@/app/Contract/OrbitABI.json";
 
 type TransactionType = "owner" | "threshold"
@@ -49,7 +49,7 @@ const TransactionRow = ({ transaction, userWallet }: { transaction: MultisigTran
 
             if (typeof window !== undefined && window.ethereum) {
                 const client = createWalletClient({
-                    chain: bittorrentchainTestnet,
+                    chain: bittorrentchainMainnet,
                     transport: custom(window.ethereum),
                 });
                 const signature = await client?.signTypedData({
@@ -57,7 +57,7 @@ const TransactionRow = ({ transaction, userWallet }: { transaction: MultisigTran
                     domain: {
                         name: "OrbitWallet",
                         version: "1",
-                        chainId: BigInt(1029),
+                        chainId: BigInt(199),
                         verifyingContract: userWallet.walletAddress as Address,
                     },
                     types: {
@@ -185,7 +185,7 @@ const TransactionRow = ({ transaction, userWallet }: { transaction: MultisigTran
 
             if (typeof window !== undefined && window.ethereum) {
                 const client = createWalletClient({
-                    chain: bittorrentchainTestnet,
+                    chain: bittorrentchainMainnet,
                     transport: custom(window.ethereum),
                 });
                 const signature = await client?.signTypedData({
@@ -193,7 +193,7 @@ const TransactionRow = ({ transaction, userWallet }: { transaction: MultisigTran
                     domain: {
                         name: "OrbitWallet",
                         version: "1",
-                        chainId: BigInt(1029),
+                        chainId: BigInt(199),
                         verifyingContract: walletAddress as Address,
                     },
                     types: {

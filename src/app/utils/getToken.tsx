@@ -10,26 +10,26 @@ interface TokenDetails {
   balance: bigint; // Assuming balance is a BigInt
 }
 
-export const bittorrentchainTestnet = {
-  id: 1029,
-  name: "BitTorrent Chain Donau",
+export const bittorrentchainMainnet = {
+  id: 199,
+  name: "BitTorrent Chain",
   nativeCurrency: {
     decimals: 18,
-    name: "BitTorrent Chain Donau",
+    name: "BitTorrent Chain",
     symbol: "BTT",
   },
   rpcUrls: {
-    default: { http: ["https://pre-rpc.bittorrentchain.io/"] },
+    default: { http: ["https://rpc.bittorrentchain.io"] },
   },
   blockExplorers: {
-    default: { name: "schedule-transactions scan", url: "https://testscan.bittorrentchain.io/" },
+    default: { name: "schedule-transactions scan", url: "https://bttcscan.com/" },
   },
-  testnet: true,
+  testnet: false,
 };
 
 const publicClient = createPublicClient({
-  chain: bittorrentchainTestnet,
-  transport: http("https://pre-rpc.bittorrentchain.io/"), // Passing RPC URL to http function
+  chain: bittorrentchainMainnet,
+  transport: http("https://rpc.bittorrentchain.io"), // Passing RPC URL to http function
 });
 
 // Define the function with proper types for parameters and return value

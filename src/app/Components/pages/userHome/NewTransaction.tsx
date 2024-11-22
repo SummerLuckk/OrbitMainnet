@@ -29,6 +29,7 @@ export default function NewTransaction({ date }: NewTransactionProps) {
     // const [loading, setLoading] = useState(false);
     // const [error, setError] = useState('');
     // const [userWallet, setUserWallet] = useState<MultisigWallet>();
+    
     const WalletContractAddress = params.address;
     console.log(date)
     const [newTransaction, setNewTransaction] = useState({
@@ -100,7 +101,14 @@ export default function NewTransaction({ date }: NewTransactionProps) {
 
             const tokenAddress = isERC20 ? newTransaction.tokenAddress : "0x0000000000000000000000000000000000000000";
             const amount = parseUnits(newTransaction.amount, isERC20 ? Number(tokenDetails?.decimals) : 18);
-            console.log("nonce", nonce)
+            console.log("nonce", nonce, new Date(newTransaction.date).getTime())
+            console.log(WalletContractAddress);
+
+            console.log( newTransaction.to,
+                amount,
+                tokenAddress,
+                nonce,
+                new Date(newTransaction.date).getTime(),)
             const tx = await writeContractAsync({
                 address: WalletContractAddress as Address,
                 abi: OrbitWalletABI,

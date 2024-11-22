@@ -282,7 +282,7 @@
 		],
 		"name": "executeScheduledTransaction",
 		"outputs": [],
-		"stateMutability": "payable",
+		"stateMutability": "nonpayable",
 		"type": "function"
 	},
 	{
@@ -326,7 +326,7 @@
 				"type": "bool"
 			}
 		],
-		"stateMutability": "payable",
+		"stateMutability": "nonpayable",
 		"type": "function"
 	},
 	{
@@ -361,9 +361,9 @@
 						"type": "bool"
 					},
 					{
-						"internalType": "bytes32",
+						"internalType": "bytes",
 						"name": "nonce",
-						"type": "bytes32"
+						"type": "bytes"
 					},
 					{
 						"internalType": "uint256",
@@ -443,9 +443,9 @@
 						"type": "bool"
 					},
 					{
-						"internalType": "bytes32",
+						"internalType": "bytes",
 						"name": "nonce",
-						"type": "bytes32"
+						"type": "bytes"
 					},
 					{
 						"internalType": "uint256",
@@ -567,13 +567,13 @@
 				"type": "address"
 			},
 			{
-				"internalType": "bytes32",
+				"internalType": "bytes",
 				"name": "_nonce",
-				"type": "bytes32"
+				"type": "bytes"
 			},
 			{
 				"internalType": "uint256",
-				"name": "_scheduledDate",
+				"name": "_scheduledData",
 				"type": "uint256"
 			}
 		],
@@ -637,9 +637,9 @@
 				"type": "bool"
 			},
 			{
-				"internalType": "bytes32",
+				"internalType": "bytes",
 				"name": "nonce",
-				"type": "bytes32"
+				"type": "bytes"
 			},
 			{
 				"internalType": "uint256",

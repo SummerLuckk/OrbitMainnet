@@ -1,26 +1,26 @@
 import { createWalletClient, custom } from "viem";
 
-const bittorrentchainTestnet = {
-  id: 1029,
-  name: "BitTorrent Chain Donau",
+const bittorrentchainMainnet = {
+  id: 199,
+  name: "BitTorrent Chain",
   nativeCurrency: {
     decimals: 18,
-    name: "BitTorrent Chain Donau",
+    name: "BitTorrent Chain",
     symbol: "BTT",
   },
   rpcUrls: {
-    default: { http: ["https://pre-rpc.bittorrentchain.io/"] },
+    default: { http: ["https://rpc.bt.io/"] },
   },
   blockExplorers: {
-    default: { name: "bttc scan", url: "https://testscan.bittorrentchain.io/" },
+    default: { name: "bttc scan", url: "https://bttcscan.com/" },
   },
-  testnet: true,
+  testnet: false,
 };
 
 export const getWalletClient = () => {
   if (typeof window !== "undefined" && window.ethereum) {
     return createWalletClient({
-      chain: bittorrentchainTestnet,
+      chain: bittorrentchainMainnet,
       transport: custom(window.ethereum),
     });
   } else {

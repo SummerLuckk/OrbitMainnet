@@ -2,30 +2,30 @@ import { getPublicClient } from "@wagmi/core";
 import { config } from "@/app/utils/config";
 // import { createWalletClient, custom } from "viem";
 
-const bittorrentchainTestnet = {
-  id: 1029,
-  name: "BitTorrent Chain Donau",
+const bittorrentchainMainnet = {
+  id: 199,
+  name: "BitTorrent Chain",
   nativeCurrency: {
     decimals: 18,
-    name: "BitTorrent Chain Donau",
+    name: "BitTorrent Chain",
     symbol: "BTT",
   },
   rpcUrls: {
-    default: { http: ["https://pre-rpc.bittorrentchain.io/"] },
+    default: { http: ["https://rpc.bittorrentchain.io"] },
   },
   blockExplorers: {
-    default: { name: "bttc scan", url: "https://testscan.bittorrentchain.io/" },
+    default: { name: "bttc scan", url: "https://bttcscan.com/" },
   },
-  testnet: true,
+  testnet: false,
 };
 
 // Define a union type of allowed chain IDs
 type AllowedChainIds =
-  typeof bittorrentchainTestnet.id
+  typeof bittorrentchainMainnet.id
 
 // export const walletClient =
 //   createWalletClient({
-//     chain: bittorrentchainTestnet,
+//     chain: bittorrentchainMainnet,
 //     transport: custom(window.ethereum!),
 //   })
 

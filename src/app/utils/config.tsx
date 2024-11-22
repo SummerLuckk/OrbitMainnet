@@ -1,26 +1,26 @@
 import { http, createConfig } from "@wagmi/core";
 
 
-const bittorrentchainTestnet = {
-  id: 1029,
-  name: "BitTorrent Chain Donau",
+const bittorrentchainMainnet = {
+  id: 199,
+  name: "BitTorrent Chain",
   nativeCurrency: {
     decimals: 18,
-    name: "BitTorrent Chain Donau",
+    name: "BitTorrent Chain",
     symbol: "BTT",
   },
   rpcUrls: {
-    default: { http: ["https://pre-rpc.bittorrentchain.io/"] },
+    default: { http: ["https://rpc.bt.io/"] },
   },
   blockExplorers: {
-    default: { name: "schedule-transactions scan", url: "https://testscan.bittorrentchain.io/" },
+    default: { name: "schedule-transactions scan", url: "https://bttcscan.com/" },
   },
-  testnet: true,
+  testnet: false,
 };
 export const config = createConfig({
-  chains: [bittorrentchainTestnet],
+  chains: [bittorrentchainMainnet],
   transports: {
-    [bittorrentchainTestnet.id]: http(),
+    [bittorrentchainMainnet.id]: http(),
    
   },
 });
