@@ -322,7 +322,7 @@ export default function CreateAccount() {
                                     <span className="text-gray-400">There will be a one-time network fee to activate your smart account wallet on the mainnet.</span>
                                 </li>
                                 <li className="flex items-start">
-                                    <svg className="w-5 h-5 text-accent mr-2 mt-1" fill="none" strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" viewBox="0 0 24 24" stroke="currentColor"><path d="M5 13l4 4L19 7"></path></svg>
+                                   
                                 </li>
                             </ul>
                         </div>
