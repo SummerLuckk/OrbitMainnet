@@ -318,6 +318,7 @@ export default function CalendarView() {
             //     chain: bittorrentchainMainnet,
             //     transport: http("https://rpc.bt.io/"),
             // });
+            console.log(walletAddress)
             if (typeof window !== undefined && window.ethereum) {
                 const client = createWalletClient({
                     chain: bittorrentchainMainnet,
@@ -328,7 +329,7 @@ export default function CalendarView() {
                     domain: {
                         name: "OrbitWallet",
                         version: "1",
-                        chainId: BigInt(199),
+                        chainId: BigInt("199"),
                         verifyingContract: walletAddress as Address,
                     },
                     types: {

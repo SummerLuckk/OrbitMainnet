@@ -19,7 +19,7 @@ export const bittorrentchainMainnet = {
     symbol: "BTT",
   },
   rpcUrls: {
-    default: { http: ["https://rpc.bittorrentchain.io"] },
+    default: { http: ["https://rpc.bt.io/"] },
   },
   blockExplorers: {
     default: { name: "schedule-transactions scan", url: "https://bttcscan.com/" },
@@ -29,7 +29,7 @@ export const bittorrentchainMainnet = {
 
 const publicClient = createPublicClient({
   chain: bittorrentchainMainnet,
-  transport: http("https://rpc.bittorrentchain.io"), // Passing RPC URL to http function
+  transport: http("https://rpc.bt.io/"), // Passing RPC URL to http function
 });
 
 // Define the function with proper types for parameters and return value

@@ -150,7 +150,7 @@ contract OrbitWallet is IERC165, EIP712, ReentrancyGuard {
         uint256 amount;
         address tokenAddress;
         bool executed;
-        bytes nonce;
+        bytes32 nonce;
         uint256 date;
     }
 
@@ -198,7 +198,7 @@ contract OrbitWallet is IERC165, EIP712, ReentrancyGuard {
         address _to,
         uint256 _value,
         address _tokenAddress,
-        bytes memory _nonce,
+        bytes32  _nonce,
         uint256 _scheduledData
     ) public onlyOwners {
         require(_to != address(0), "Can't submit to Zero address");
