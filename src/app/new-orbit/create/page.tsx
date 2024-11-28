@@ -546,7 +546,10 @@ export default function CreateAccount() {
       if (response.ok) {
         toast(`Multisig wallet created: ${walletAddress}`);
 
-        router.push("/welcome/accounts");
+        // Delay navigation to allow the toast to show
+        setTimeout(() => {
+          router.push("/welcome/accounts");
+        }, 3000); // Wait for 3 seconds before navigating
       } else {
         toast(`Error: ${result.message}`);
       }
