@@ -1,11 +1,11 @@
-
-import React from 'react';
+import React from "react";
 import { DM_Sans } from "next/font/google";
 import "./globals.css";
 import "@rainbow-me/rainbowkit/styles.css";
-import { Metadata } from 'next';
-import dynamic from 'next/dynamic';
-import Navbar from './Components/Navbar';
+import { Metadata } from "next";
+import dynamic from "next/dynamic";
+import Navbar from "./Components/Navbar";
+import "react-toastify/dist/ReactToastify.css";
 
 const dm_sans = DM_Sans({
   weight: ["400", "600", "700"],
@@ -23,9 +23,10 @@ export const metadata: Metadata = {
   title: "Orbit Wallet",
   description: "Keeping Financial Matters in Motion",
 };
-const Providers = dynamic(() => import("@/app/provider"), { ssr: false })
-const ProgressProvider = dynamic(() => import("@/app/progressProvider"), { ssr: false })
-
+const Providers = dynamic(() => import("@/app/provider"), { ssr: false });
+const ProgressProvider = dynamic(() => import("@/app/progressProvider"), {
+  ssr: false,
+});
 
 export default function RootLayout({ children }: RootLayoutProps) {
   return (
